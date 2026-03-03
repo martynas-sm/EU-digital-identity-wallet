@@ -13,10 +13,15 @@ Add this to your `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on win
 
 ```
 127.0.0.1 relying-party.wallet.test
+127.0.0.1 public.relying-party.wallet.test
 127.0.0.1 trusted-list.wallet.test
+127.0.0.1 public.trusted-list.wallet.test
 127.0.0.1 pid-provider.wallet.test
+127.0.0.1 public.pid-provider.wallet.test
 127.0.0.1 wallet-backend.wallet.test
+127.0.0.1 public.wallet-backend.wallet.test
 127.0.0.1 wallet-frontend.wallet.test
+127.0.0.1 public.wallet-frontend.wallet.test
 ```
 
 Install the root CA certificate `certs/root-ca.crt` on your system:

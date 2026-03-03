@@ -80,10 +80,15 @@ services:
       wallet-net:
         aliases:
           - relying-party.wallet.test
+          - public.relying-party.wallet.test
           - trusted-list.wallet.test
+          - public.trusted-list.wallet.test
           - pid-provider.wallet.test
+          - public.pid-provider.wallet.test
           - wallet-backend.wallet.test
+          - public.wallet-backend.wallet.test
           - wallet-frontend.wallet.test
+          - public.wallet-frontend.wallet.test
     volumes:
       - ./certs/wildcard.test.crt:/etc/nginx/certs/wildcard.test.crt:ro
       - ./certs/wildcard.test.key:/etc/nginx/certs/wildcard.test.key:ro

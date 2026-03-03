@@ -13,5 +13,10 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [ alt_names ]
-DNS.1 = *.wallet.test
-DNS.2 = wallet.test
+DNS.1 = wallet.test
+DNS.2 = *.wallet.test
+DNS.3 = *.relying-party.wallet.test
+DNS.4 = *.trusted-list.wallet.test
+DNS.5 = *.pid-provider.wallet.test
+DNS.6 = *.wallet-backend.wallet.test
+DNS.7 = *.wallet-frontend.wallet.test
