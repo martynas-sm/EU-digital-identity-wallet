@@ -18,9 +18,13 @@
   --warning: #ff1c1c;
 }
 
-body {
-  background-color: var(--primary) !important;
-  height: 100vh;
+html,
+body,
+#root {
+  background-color: #1b1b1b !important;
+  color: #eaeaea !important;
+  min-height: 100vh;
+  margin: 0;
 }
 
 html {
