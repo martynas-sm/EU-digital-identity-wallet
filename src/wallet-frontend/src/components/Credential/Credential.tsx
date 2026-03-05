@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import styles from "./credential.module.css";
 import type { Credential } from "@/data/mock-credentials";
 
@@ -6,8 +7,22 @@ type CredentialProps = {
 };
 
 function CredentialTest({ credential }: CredentialProps) {
-  const card = (
-    <div className={styles.cardOuter}>
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className={styles.cardOuter}
+      onClick={() =>
+        navigate(`/credentials/${encodeURIComponent(credential.id)}`)
+      }
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          navigate(`/credentials/${encodeURIComponent(credential.id)}`);
+        }
+      }}
+    >
       <div className={styles.cardInner}>
         <div className={styles.cardTitle}>
           <h4>{credential.title}</h4>
@@ -19,7 +34,6 @@ function CredentialTest({ credential }: CredentialProps) {
       </div>
     </div>
   );
-  return card;
 }
 
 export default CredentialTest;

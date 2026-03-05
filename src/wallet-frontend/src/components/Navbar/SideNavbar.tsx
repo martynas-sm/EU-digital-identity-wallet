@@ -1,9 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { Home, CreditCard, QrCode, Settings } from "lucide-react";
+import { CreditCard, QrCode, Settings, LogOut } from "lucide-react";
 import styles from "./SideNavbar.module.css";
 
 const navItems = [
-  { to: "/", icon: Home, label: "Home" },
   { to: "/credentials", icon: CreditCard, label: "Credentials" },
   { to: "/scan", icon: QrCode, label: "Scan" },
   { to: "/settings", icon: Settings, label: "Settings" },
@@ -28,6 +27,12 @@ function SideNavbar() {
           </li>
         ))}
       </ul>
+      <div className={styles.logoutContainer}>
+        <button className={styles.logoutButton}>
+          <LogOut size={20} className={styles.navIcon} />
+          <span className={styles.navLabel}>Logout</span>
+        </button>
+      </div>
     </nav>
   );
 }
