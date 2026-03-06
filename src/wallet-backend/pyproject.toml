@@ -9,7 +9,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["debugpy>=1.8.20", "quart (>=0.20.0,<0.21.0)"]
+dependencies = [
+    "debugpy>=1.8.20",
+    "quart (>=0.20.0,<0.21.0)",
+    "quart-auth>=0.11.0",
+]
 
 [tool.uv]
 
