@@ -34,5 +34,5 @@ jobs:
         working-directory: ./src/wallet-frontend
 
       - name: Lint backend
-        run: uvx flake8 . --show-source --statistics
+        run: uvx flake8 . --show-source --statistics --max-line-length 130
         working-directory: ./src/wallet-backend/app
