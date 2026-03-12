@@ -1,11 +1,26 @@
-FROM python:3.13-slim
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-COPY app/app.py .
+# Install backend dependencies
+COPY app/package.json ./
+RUN npm install --omit=dev
 
-CMD update-ca-certificates && python app.py
+# Install and build frontend
+COPY app/frontend/package.json ./frontend/
+RUN cd frontend && npm install
+
+COPY app/frontend ./frontend
+RUN cd frontend && npm run build
+
+# Copy server
+COPY app/server.js ./
+
+# Move built frontend into expected location
+RUN mkdir -p dist && cp -r frontend/dist/* dist/
+
+RUN mkdir -p /data
+
+EXPOSE 8000
+
+CMD ["node", "server.js"]
