@@ -6,10 +6,11 @@ function TopNavbar() {
     <header className={styles.topNavbar}>
       <div className={styles.logoContainer}>
         <img
-          src="/images/eu-logo.svg"
-          alt="EU Digital Identity Wallet"
+          src="/images/wallet-logo.png"
+          alt="Wallet Logo"
           className={styles.logo}
         />
+        Walletby
       </div>
       <button className={styles.profileButton} aria-label="Profile">
         <User size={22} />
