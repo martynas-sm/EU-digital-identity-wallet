@@ -14,7 +14,7 @@ The relying party sends a request to the wallet specifying which claims must be 
 {
     "requested_claims": [ "birthdate" ],
     "nonce": "3f1e4c2d5a6b7890123456789abcdef0123456789abcdef0123456789abcdef",
-    "proof_endpoint": "https://verifier.example.com/proof",
+    "proof_endpoint": "https://relying-party.example.com/proof",
     "exp": 1715000000
 }
 ```
