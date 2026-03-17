@@ -5,12 +5,14 @@ import {
   Settings,
   LogOut,
   ShieldCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 import styles from "./SideNavbar.module.css";
 
 const navItems = [
   { to: "/credentials", icon: CreditCard, label: "Credentials" },
   { to: "/verify", icon: ShieldCheck, label: "Verify" },
+  { to: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
   { to: "/scan", icon: QrCode, label: "Scan" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
