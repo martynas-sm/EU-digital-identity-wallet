@@ -5,6 +5,7 @@ import styles from "./App.module.css";
 import Credentials from "./pages/Credentials";
 import CredentialDetail from "./pages/CredentialDetail";
 import Verify from "./pages/Verify";
+import Transactions from "./pages/Transactions";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/credentials" element={<Credentials />} />
           <Route path="/credentials/:id" element={<CredentialDetail />} />
           <Route path="/verify" element={<Verify />} />
+          <Route path="/transactions" element={<Transactions />} />
         </Routes>
       </main>
     </div>

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Credential.module.css";
-import type { Credential } from "@/data/mock-credentials";
+import type { Credential } from "@/data/mock-data";
 
 type CredentialProps = {
   credential: Credential;

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getCredentialById } from "@/data/mock-credentials";
+import { getCredentialById } from "@/data/mock-data";
 import { ArrowLeft } from "lucide-react";
 import styles from "../components/CredentialsPage/CredentialDetail.module.css";
 
