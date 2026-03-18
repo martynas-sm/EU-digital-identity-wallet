@@ -1,0 +1,128 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  margin: 0 0 1.5rem 0;
+  color: var(--light-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr 0.6fr;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--secondary);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.row:hover {
+  background-color: var(--tertiary);
+}
+
+.headerRow {
+  composes: row;
+  background-color: transparent;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--tertiary);
+  border-radius: 0;
+}
+
+.headerRow:hover {
+  background-color: transparent;
+}
+
+.headerCell {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-1);
+}
+
+.requester {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.requesterName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--light-2);
+}
+
+.requesterDid {
+  font-size: 0.7rem;
+  color: var(--gray-1);
+  word-break: break-all;
+}
+
+.credential {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.credentialTitle {
+  font-size: 0.9rem;
+  color: var(--light-2);
+}
+
+.attributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.attributeTag {
+  font-size: 0.65rem;
+  background-color: var(--tertiary);
+  color: var(--light-1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: var(--light-1);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.statusShared {
+  background-color: var(--accent-4);
+  color: var(--light-2);
+}
+
+.statusDeclined {
+  background-color: var(--warning);
+  color: var(--light-2);
+}
+
+.empty {
+  text-align: center;
+  color: var(--gray-1);
+  padding: 3rem 0;
+  font-size: 0.95rem;
+}

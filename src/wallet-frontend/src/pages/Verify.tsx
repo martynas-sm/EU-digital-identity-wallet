@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { mockCredentials, type Credential } from "@/data/mock-credentials";
+import { walletData, type Credential } from "@/data/mock-data";
 import styles from "../components/VerifyPage/Verify.module.css";
 import { ShieldCheck } from "lucide-react";
 
@@ -47,7 +47,7 @@ function Verify() {
       return;
     }
 
-    const credential = mockCredentials.find(
+    const credential = walletData.credentials.find(
       (c) => c.type === parsed.credentialType,
     );
     if (!credential) {

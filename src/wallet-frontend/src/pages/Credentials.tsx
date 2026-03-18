@@ -1,12 +1,12 @@
 import Credential from "../components/Credential/Credential";
-import { mockCredentials } from "@/data/mock-credentials";
+import { walletData } from "@/data/mock-data";
 import styles from "../components/CredentialsPage/Credentials.module.css";
 import { Plus } from "lucide-react";
 
 function Credentials() {
   return (
     <div className={styles.grid}>
-      {mockCredentials.map((credential) => (
+      {walletData.credentials.map((credential) => (
         <Credential key={credential.id} credential={credential} />
       ))}
       <button className={styles.addCard}>
