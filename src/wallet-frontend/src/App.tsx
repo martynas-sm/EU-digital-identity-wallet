@@ -7,16 +7,19 @@ import CredentialDetail from "./pages/CredentialDetail";
 import Verify from "./pages/Verify";
 import Transactions from "./pages/Transactions";
 import LoginUser from "./pages/Login";
+import { useState } from "react";
 
 function App() {
-  if (sessionStorage.getItem("token") == null) {
-    return <LoginUser />;
+  const [token, setToken] = useState(sessionStorage.getItem("token"));
+
+  if (token == null) {
+    return <LoginUser setToken={setToken} />;
   }
 
   return (
     <div className={styles.appWrapper}>
       <TopNavbar />
-      <SideNavbar />
+      <SideNavbar setToken={setToken} />
       <main className={styles.mainContent}>
         <Routes>
           <Route path="/" element={<Navigate to="/credentials" replace />} />

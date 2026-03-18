@@ -4,10 +4,17 @@ import argon2
 from app import db
 from quart import Response, jsonify, Quart, current_app, request
 from quart_auth import QuartAuth, login_required, current_user
+from quart_cors import cors
 
 app = Quart(__name__)
 app.config["QUART_AUTH_MODE"] = "bearer"
 app.secret_key = secrets.token_urlsafe(16)
+app = cors(
+    app,
+    allow_origin=["https://wallet-frontend.wallet.test"],
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["content-type", "authorization"],
+)
 auth = QuartAuth(app)
 
 

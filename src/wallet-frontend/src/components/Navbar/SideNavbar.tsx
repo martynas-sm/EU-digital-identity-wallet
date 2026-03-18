@@ -17,11 +17,11 @@ const navItems = [
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
-function RemoveToken() {
+function removeToken() {
   sessionStorage.removeItem("token");
 }
 
-function SideNavbar() {
+function SideNavbar({ setToken }: { setToken: (t: string | null) => void }) {
   return (
     <nav className={styles.sideNavbar}>
       <ul className={styles.navList}>
@@ -41,7 +41,13 @@ function SideNavbar() {
         ))}
       </ul>
       <div className={styles.logoutContainer}>
-        <button className={styles.logoutButton} onClick={RemoveToken}>
+        <button
+          className={styles.logoutButton}
+          onClick={() => {
+            removeToken();
+            setToken(null);
+          }}
+        >
           <LogOut size={20} className={styles.navIcon} />
           <span className={styles.navLabel}>Logout</span>
         </button>

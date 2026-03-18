@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type LoginResponse = { token: string } | { error: string };
 
-function LoginUser() {
+function LoginUser({ setToken }: { setToken: (t: string) => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  async function handleLogin() {
+  async function handleLogin(e: React.SyntheticEvent<HTMLFormElement>) {
     try {
+      e.preventDefault();
+
       const request = {
         username: username,
         password: password,
@@ -19,6 +22,9 @@ function LoginUser() {
         {
           method: "POST",
           body: JSON.stringify(request),
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
       );
 
@@ -36,6 +42,8 @@ function LoginUser() {
       if ("token" in contents) {
         // a cookie should be used instead?
         sessionStorage.setItem("token", contents.token);
+        setToken(contents.token);
+        navigate("/credentials");
       } else {
         throw new Error("Missing token in API response");
       }
