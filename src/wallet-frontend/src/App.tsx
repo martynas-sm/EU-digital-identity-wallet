@@ -6,8 +6,13 @@ import Credentials from "./pages/Credentials";
 import CredentialDetail from "./pages/CredentialDetail";
 import Verify from "./pages/Verify";
 import Transactions from "./pages/Transactions";
+import LoginUser from "./pages/Login";
 
 function App() {
+  if (sessionStorage.getItem("token") == null) {
+    return <LoginUser />;
+  }
+
   return (
     <div className={styles.appWrapper}>
       <TopNavbar />
