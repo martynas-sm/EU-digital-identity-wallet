@@ -50,7 +50,7 @@ function RegisterUser() {
       } else {
         throw new Error(contents.status);
       }
-    } catch (error) {
+    } catch {
       setOpen(true);
     }
   }

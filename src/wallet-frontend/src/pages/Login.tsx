@@ -63,7 +63,7 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
       } else {
         throw new Error("Missing token in API response");
       }
-    } catch (error) {
+    } catch {
       setOpen(true);
     }
   }
