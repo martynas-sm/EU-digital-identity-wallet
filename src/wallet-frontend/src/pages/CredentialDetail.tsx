@@ -1,12 +1,38 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getCredentialById } from "@/data/mock-data";
+import { getCredentialById, type Credential } from "@/data/wallet_data";
 import { ArrowLeft } from "lucide-react";
 import styles from "../components/CredentialsPage/CredentialDetail.module.css";
+import { useEffect, useState } from "react";
 
 function CredentialDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const credential = id ? getCredentialById(decodeURIComponent(id)) : undefined;
+  const [credential, setCredential] = useState<Credential | undefined>(
+    undefined,
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const cred = id
+          ? await getCredentialById(decodeURIComponent(id))
+          : undefined;
+
+        setCredential(cred);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   if (!credential) {
     return (

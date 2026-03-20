@@ -15,6 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { initData } from "@/data/wallet_data";
+import { SHA256 } from "crypto-js";
 
 type LoginResponse = { token: string } | { error: string };
 
@@ -59,6 +61,10 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
         // a cookie should be used instead?
         sessionStorage.setItem("token", contents.token);
         setToken(contents.token);
+
+        sessionStorage.setItem("blob_key", SHA256(password).toString());
+        await initData();
+
         navigate("/credentials");
       } else {
         throw new Error("Missing token in API response");

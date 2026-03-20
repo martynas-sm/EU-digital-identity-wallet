@@ -1,3 +1,5 @@
+import { AES } from "crypto-js";
+
 export type Credential = {
   id: string;
   type: string;
@@ -30,7 +32,7 @@ export type WalletData = {
   transactions: Transaction[];
 };
 
-export const walletData: WalletData = {
+const initialData: WalletData = {
   credentials: [
     {
       id: "urn:uuid:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -301,14 +303,85 @@ export const walletData: WalletData = {
   ],
 };
 
-export function getCredentialById(id: string): Credential | undefined {
-  return walletData.credentials.find((c) => c.id === id);
+export const initData = async () => {
+  try {
+    await getData();
+  } catch {
+    await updateData(initialData);
+  }
+};
+
+export const updateData = async (newData: WalletData) => {
+  const key = sessionStorage.getItem("blob_key");
+  if (key == null) {
+    throw new Error("Blob key was not found");
+  }
+
+  const blob = AES.encrypt(JSON.stringify(newData), key).toString();
+
+  const response = await fetch(
+    "https://wallet-backend.wallet.test/api/store_blob",
+    {
+      method: "POST",
+      body: JSON.stringify({ blob: blob }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.json());
+  }
+};
+
+export const getData = async (): Promise<WalletData> => {
+  const response = await fetch(
+    "https://wallet-backend.wallet.test/api/get_blob",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `/api/get_blob got an error status code: ${response.status}`,
+    );
+  }
+
+  const contents = await response.json();
+  if (!("blob" in contents) || contents.blob == null) {
+    throw new Error("Blob not found");
+  }
+
+  const key = sessionStorage.getItem("blob_key");
+  if (key == null) {
+    throw new Error("Key not found");
+  }
+
+  const decrypted = AES.decrypt(contents.blob, key).toString(CryptoJS.enc.Utf8);
+
+  return JSON.parse(decrypted);
+};
+
+export async function getCredentialById(
+  id: string,
+): Promise<Credential | undefined> {
+  return (await getData()).credentials.find((c) => c.id === id);
 }
 
-export function addCredential(credential: Credential): void {
-  walletData.credentials.push(credential);
+export async function addCredential(credential: Credential): Promise<void> {
+  let data = await getData();
+  data.credentials.push(credential);
+  await updateData(data);
 }
 
-export function addTransaction(transaction: Transaction): void {
-  walletData.transactions.push(transaction);
+export async function addTransaction(transaction: Transaction): Promise<void> {
+  let data = await getData();
+  data.transactions.push(transaction);
+  await updateData(data);
 }

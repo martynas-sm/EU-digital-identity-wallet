@@ -12,8 +12,8 @@ app.secret_key = secrets.token_urlsafe(16)
 app = cors(
     app,
     allow_origin=["https://wallet-frontend.wallet.test"],
-    allow_methods=["POST", "OPTIONS"],
-    allow_headers=["content-type", "authorization"],
+    allow_methods=["POST", "OPTIONS", "GET"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 auth = QuartAuth(app)
 
