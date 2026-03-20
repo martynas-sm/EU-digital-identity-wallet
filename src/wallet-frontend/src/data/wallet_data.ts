@@ -1,4 +1,4 @@
-import { AES } from "crypto-js";
+import { AES, enc } from "crypto-js";
 
 export type Credential = {
   id: string;
@@ -363,7 +363,7 @@ export const getData = async (): Promise<WalletData> => {
     throw new Error("Key not found");
   }
 
-  const decrypted = AES.decrypt(contents.blob, key).toString(CryptoJS.enc.Utf8);
+  const decrypted = AES.decrypt(contents.blob, key).toString(enc.Utf8);
 
   return JSON.parse(decrypted);
 };
