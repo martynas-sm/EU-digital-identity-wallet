@@ -5,12 +5,23 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type LoginResponse = { token: string } | { error: string };
 
 function LoginUser({ setToken }: { setToken: (t: string) => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   async function handleLogin(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -53,8 +64,7 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
         throw new Error("Missing token in API response");
       }
     } catch (error) {
-      // TODO: make a error popup?
-      console.log(error);
+      setOpen(true);
     }
   }
 
@@ -119,6 +129,24 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
           </form>
         </CardContent>
       </Card>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Error</DialogTitle>
+              <DialogDescription>
+                Failed to login. Please check that you have created an account
+                and have entered valid credentials.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="sm:justify-center">
+              <DialogClose asChild>
+                <Button type="button">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </DialogTrigger>
+      </Dialog>
     </div>
   );
 }
