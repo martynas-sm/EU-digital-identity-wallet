@@ -8,12 +8,19 @@ import Verify from "./pages/Verify";
 import Transactions from "./pages/Transactions";
 import LoginUser from "./pages/Login";
 import { useState } from "react";
+import RegisterUser from "./pages/Register";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
 
   if (token == null) {
-    return <LoginUser setToken={setToken} />;
+    return (
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<RegisterUser />} />
+        <Route path="/login" element={<LoginUser setToken={setToken} />} />
+      </Routes>
+    );
   }
 
   return (
