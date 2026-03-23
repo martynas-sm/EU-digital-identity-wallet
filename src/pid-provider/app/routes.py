@@ -44,6 +44,8 @@ def register_routes(app, db):
                 if gen_state:
                     session['generate_state'] = gen_state
 
+        error = None
+
         if request.method == 'POST':
             form = await request.form
             pan = form.get('personal_administrative_number')

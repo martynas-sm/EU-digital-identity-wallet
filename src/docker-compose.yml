@@ -39,7 +39,6 @@ services:
       PGPASSWORD: password
       PGDATABASE: piddb
       PGPORT: "5432"
-      TZ: Europe/Vilnius
       SECRET_KEY: Paslaptingasis_Raktas!!
     expose:
       - "8000"
