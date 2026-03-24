@@ -6,6 +6,8 @@ import Credentials from "./pages/Credentials";
 import CredentialDetail from "./pages/CredentialDetail";
 import Verify from "./pages/Verify";
 import Transactions from "./pages/Transactions";
+import PidProviders from "./pages/PidProviders";
+import PidCallback from "./pages/PidCallback";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path="/credentials/:id" element={<CredentialDetail />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/pid-providers" element={<PidProviders />} />
+          <Route path="/pid-callback" element={<PidCallback />} />
         </Routes>
       </main>
     </div>
