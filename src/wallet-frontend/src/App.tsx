@@ -6,14 +6,29 @@ import Credentials from "./pages/Credentials";
 import CredentialDetail from "./pages/CredentialDetail";
 import Verify from "./pages/Verify";
 import Transactions from "./pages/Transactions";
+import LoginUser from "./pages/Login";
+import { useState } from "react";
+import RegisterUser from "./pages/Register";
 import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
 
 function App() {
+  const [token, setToken] = useState(sessionStorage.getItem("token"));
+
+  if (token == null) {
+    return (
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<RegisterUser />} />
+        <Route path="/login" element={<LoginUser setToken={setToken} />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className={styles.appWrapper}>
       <TopNavbar />
-      <SideNavbar />
+      <SideNavbar setToken={setToken} />
       <main className={styles.mainContent}>
         <Routes>
           <Route path="/" element={<Navigate to="/credentials" replace />} />
