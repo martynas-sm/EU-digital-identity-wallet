@@ -32,7 +32,7 @@ export type WalletData = {
   transactions: Transaction[];
 };
 
-const initialData: WalletData = {
+let walletData: WalletData = {
   credentials: [
     {
       id: "urn:uuid:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -307,7 +307,7 @@ export const initData = async () => {
   try {
     await getData();
   } catch {
-    await updateData(initialData);
+    await updateData(walletData);
   }
 };
 
@@ -375,13 +375,9 @@ export async function getCredentialById(
 }
 
 export async function addCredential(credential: Credential): Promise<void> {
-  const data = await getData();
-  data.credentials.push(credential);
-  await updateData(data);
+  walletData.credentials.push(credential);
 }
 
 export async function addTransaction(transaction: Transaction): Promise<void> {
-  const data = await getData();
-  data.transactions.push(transaction);
-  await updateData(data);
+  walletData.transactions.push(transaction);
 }

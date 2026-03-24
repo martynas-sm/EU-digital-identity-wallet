@@ -22,6 +22,7 @@ function RegisterUser() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
+  const [errorStatus, setErrorStatus] = useState("");
   const navigate = useNavigate();
 
   async function handleLogin(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -48,6 +49,7 @@ function RegisterUser() {
       if (response.ok) {
         navigate("/");
       } else {
+        setErrorStatus(contents.status);
         throw new Error(contents.status);
       }
     } catch {
@@ -115,8 +117,7 @@ function RegisterUser() {
             <DialogHeader>
               <DialogTitle>Error</DialogTitle>
               <DialogDescription>
-                Failed to register. Please check that you have entered valid
-                credentials.
+                Failed to register. {errorStatus}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="sm:justify-center">
