@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
-import { addCredential, type Credential } from "@/data/mock-data";
+import { addCredential, type Credential } from "@/data/wallet_data";
 import styles from "../components/PidProvidersPage/PidProviders.module.css";
 
 function base64UrlDecode(str: string): string {
@@ -35,9 +35,7 @@ function parseSdJwt(sdJwt: string): {
     try {
       const [, name, value] = parseDisclosure(d);
       disclosures[name] = value;
-    } catch {
-      // skip malformed disclosures
-    }
+    } catch {}
   }
 
   return { header, payload, disclosures };
@@ -72,8 +70,9 @@ function PidCallback() {
         const passkey = sessionStorage.getItem("pid_passkey");
         const providerDomain = sessionStorage.getItem("pid_provider_domain");
         const receiveEndpoint = sessionStorage.getItem("pid_receive_endpoint");
+        const privateKeyRaw = sessionStorage.getItem("pid_private_key");
 
-        if (!passkey || !providerDomain || !receiveEndpoint) {
+        if (!passkey || !providerDomain || !receiveEndpoint || !privateKeyRaw) {
           throw new Error("Missing PID request data. Please try again.");
         }
 
@@ -120,12 +119,16 @@ function PidCallback() {
           format: "vc+sd-jwt",
           status: "valid",
           subject,
-          raw: { sd_jwt: data.pid, payload, disclosures },
+          raw: {
+            sd_jwt: data.pid,
+            payload,
+            disclosures,
+            private_key: JSON.parse(privateKeyRaw),
+          },
         };
 
-        addCredential(credential);
+        await addCredential(credential);
 
-        // Clean up session data
         sessionStorage.removeItem("pid_passkey");
         sessionStorage.removeItem("pid_private_key");
         sessionStorage.removeItem("pid_provider_domain");
