@@ -9,6 +9,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/app.py .
+COPY app/ .
 
-CMD update-ca-certificates && hypercorn app:app --bind "0.0.0.0:8000"
+CMD sh /app/keys/generate.sh && \
+    update-ca-certificates && \
+    hypercorn app:app --bind "0.0.0.0:8000"

@@ -1,5 +1,7 @@
 quart
 quart-db[postgresql]
+quart-cors
 hypercorn
 sd-jwt
 cryptography
+pyotp

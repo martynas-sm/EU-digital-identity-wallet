@@ -39,12 +39,14 @@ services:
       PGPASSWORD: password
       PGDATABASE: piddb
       PGPORT: "5432"
+      SECRET_KEY: Paslaptingasis_Raktas!!
     expose:
       - "8000"
     networks:
       - wallet-net
     volumes:
       - ./certs/root-ca.crt:/usr/local/share/ca-certificates/root-ca.crt:ro
+      - ./pid-provider/app/keys:/app/keys
 
   pid-db:
     image: postgres:18-alpine
