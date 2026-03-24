@@ -32,7 +32,7 @@ export type WalletData = {
   transactions: Transaction[];
 };
 
-let walletData: WalletData = {
+const walletData: WalletData = {
   credentials: [
     {
       id: "urn:uuid:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
