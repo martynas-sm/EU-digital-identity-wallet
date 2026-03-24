@@ -7,12 +7,16 @@ import { useEffect, useState } from "react";
 function Credentials() {
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setWalletData(await getData());
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err);
       } finally {

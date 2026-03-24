@@ -11,6 +11,8 @@ function CredentialDetail() {
     undefined,
   );
   const [loading, setLoading] = useState(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
@@ -21,6 +23,8 @@ function CredentialDetail() {
           : undefined;
 
         setCredential(cred);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err);
       } finally {

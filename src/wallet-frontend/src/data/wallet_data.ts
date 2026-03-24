@@ -375,13 +375,13 @@ export async function getCredentialById(
 }
 
 export async function addCredential(credential: Credential): Promise<void> {
-  let data = await getData();
+  const data = await getData();
   data.credentials.push(credential);
   await updateData(data);
 }
 
 export async function addTransaction(transaction: Transaction): Promise<void> {
-  let data = await getData();
+  const data = await getData();
   data.transactions.push(transaction);
   await updateData(data);
 }
