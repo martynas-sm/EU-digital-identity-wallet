@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { walletData, type Credential } from "@/data/mock-data";
+import { getData, type Credential } from "@/data/wallet_data";
 import styles from "../components/VerifyPage/Verify.module.css";
 import { ShieldCheck } from "lucide-react";
 
@@ -25,7 +25,7 @@ function Verify() {
   >({});
   const [shared, setShared] = useState(false);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     setError("");
     setRequest(null);
     setMatchedCredential(null);
@@ -47,7 +47,7 @@ function Verify() {
       return;
     }
 
-    const credential = walletData.credentials.find(
+    const credential = (await getData()).credentials.find(
       (c) => c.type === parsed.credentialType,
     );
     if (!credential) {

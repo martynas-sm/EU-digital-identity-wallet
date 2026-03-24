@@ -1,0 +1,16 @@
+.logo {
+  height: 80px;
+  width: fit-content;
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+}
+
+.login_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10em;
+}

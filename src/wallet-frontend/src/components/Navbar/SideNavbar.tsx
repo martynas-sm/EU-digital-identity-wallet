@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   CreditCard,
   QrCode,
@@ -17,7 +17,13 @@ const navItems = [
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
-function SideNavbar() {
+function removeToken() {
+  sessionStorage.removeItem("token");
+}
+
+function SideNavbar({ setToken }: { setToken: (t: string | null) => void }) {
+  const navigate = useNavigate();
+
   return (
     <nav className={styles.sideNavbar}>
       <ul className={styles.navList}>
@@ -37,7 +43,14 @@ function SideNavbar() {
         ))}
       </ul>
       <div className={styles.logoutContainer}>
-        <button className={styles.logoutButton}>
+        <button
+          className={styles.logoutButton}
+          onClick={() => {
+            removeToken();
+            setToken(null);
+            navigate("/");
+          }}
+        >
           <LogOut size={20} className={styles.navIcon} />
           <span className={styles.navLabel}>Logout</span>
         </button>

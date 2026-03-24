@@ -1,5 +1,6 @@
-import { walletData } from "@/data/mock-data";
+import { useEffect, useState } from "react";
 import styles from "../components/TransactionsPage/Transactions.module.css";
+import { getData, type WalletData } from "@/data/wallet_data";
 
 function Transactions() {
   const formatDate = (iso: string) =>
@@ -11,11 +12,36 @@ function Transactions() {
       minute: "2-digit",
     });
 
+  const [walletData, setWalletData] = useState<WalletData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setWalletData(await getData());
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Transactions</h1>
 
-      {walletData.transactions.length === 0 ? (
+      {walletData?.transactions.length === 0 ? (
         <p className={styles.empty}>No transactions yet.</p>
       ) : (
         <div className={styles.list}>
@@ -26,7 +52,7 @@ function Transactions() {
             <span className={styles.headerCell}>Status</span>
           </div>
 
-          {walletData.transactions.map((txn) => (
+          {walletData?.transactions.map((txn) => (
             <div key={txn.id} className={styles.row}>
               <span className={styles.requesterName}>{txn.requester}</span>
 

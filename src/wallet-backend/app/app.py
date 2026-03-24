@@ -4,10 +4,17 @@ import argon2
 from app import db
 from quart import Response, jsonify, Quart, current_app, request
 from quart_auth import QuartAuth, login_required, current_user
+from quart_cors import cors
 
 app = Quart(__name__)
 app.config["QUART_AUTH_MODE"] = "bearer"
 app.secret_key = secrets.token_urlsafe(16)
+app = cors(
+    app,
+    allow_origin=["https://wallet-frontend.wallet.test"],
+    allow_methods=["POST", "OPTIONS", "GET"],
+    allow_headers=["Content-Type", "Authorization"],
+)
 auth = QuartAuth(app)
 
 
@@ -44,13 +51,56 @@ async def register():
     if not is_user_request_valid(req):
         return jsonify({"success": False, "status": "Invalid input JSON"}), 400
 
+    if (not req["username"].isalnum()) or (len(req["username"]) < 6):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "status": "Username is invalid \
+                        (must be an alphanumeric string of at least 6 characters)",
+                }
+            ),
+            400,
+        )
+
+    if len(req["password"]) < 6:
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "status": "Password is invalid \
+                        (must be a string of at least 6 characters)",
+                }
+            ),
+            400,
+        )
+
     hasher = argon2.PasswordHasher()
     password_hash = hasher.hash(req["password"])
 
     try:
+        if await db.get_user(current_app.db_engine, req["username"]) is not None:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status": "Username is taken",
+                    }
+                ),
+                400,
+            )
+
         await db.create_user(current_app.db_engine, req["username"], password_hash)
     except Exception:
-        return jsonify({"success": False, "status": "Failed to create user"}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "status": "Internal server error",
+                }
+            ),
+            500,
+        )
 
     return jsonify({"success": True, "Status": "User created successfully"})
 
