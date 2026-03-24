@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="lt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisijungti</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            color: green;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        form {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 300px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: darkgreen;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 class="header">Nacionalinis Gyventojų Registras</h2>
+    <div class="login-container">
+        <h3>Prisijungimas</h3>
+        <form method="POST" action="/login">
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+            <label for="pan">Asmens kodas</label>
+            <input type="text" id="pan" name="personal_administrative_number" placeholder="XXXXXXXXXXX" required>
+            <button type="submit">Prisijungti</button>
+        </form>
+    </div>
+</body>
+
+</html>

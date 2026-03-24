@@ -219,3 +219,6 @@ __marimo__/
 
 # Agents
 .agents/
+
+# Pid provider keys
+src/pid-provider/app/keys/*.pem

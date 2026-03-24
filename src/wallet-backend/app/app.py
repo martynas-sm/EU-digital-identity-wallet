@@ -22,9 +22,7 @@ auth = QuartAuth(app)
 async def startup():
     app.db_engine = await db.init_db()
     app.blob_dir = "blob"
-
-    if not os.path.isdir(app.blob_dir):
-        os.mkdir(app.blob_dir)
+    os.makedirs(app.blob_dir, exist_ok=True)
 
 
 @app.after_serving

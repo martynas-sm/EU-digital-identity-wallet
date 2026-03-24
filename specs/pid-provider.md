@@ -34,7 +34,7 @@ PID provider deletes issued token, or after a certain amount of time if the wall
 ## Endpoints
 
 **Redirection**\
-`GET /Generate`\
+`GET /api/request-pid`\
 Generates the token for the user if they are authenticated
 
 | Parameter      | Type   | Description                                            |
@@ -50,7 +50,7 @@ https://pid-provider.wallet.test/Generate?pub_key=MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQ
 
 
 **API Call**\
-`POST /Issue`\
+`POST /api/receive-pid`\
 Used by the wallet to call the PID provider with a passkey
 Request body:
 ```
@@ -70,6 +70,6 @@ Example Responses:
 - If no matching passkey is found (404 Not found)
 ```
 {
-  "error": "passkey doesn't match"
+  "error": "passkey doesn't match or expired"
 }
 ```
