@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { CartSheet } from '@/components/CartSheet'
 import { CheckoutDialog } from '@/components/CheckoutDialog'
+import { WalletRequestDialog } from '@/components/WalletRequestDialog'
 import { ShopPage } from '@/pages/ShopPage'
 import { ProductPage } from '@/pages/ProductPage'
 import * as cart from '@/services/cart'
@@ -49,6 +50,7 @@ export default function App() {
                 ageConfirmed={ageConfirmed}
                 onClose={() => { setCheckoutOpen(false); setAgeConfirmed(false) }}
             />
+            <WalletRequestDialog />
         </div>
     )
 }

@@ -55,6 +55,8 @@ const walletData: WalletData = {
         "Document Number": "ID-LT-2025-001",
         "Place of Birth": "Vilnius, Lithuania",
         Gender: "Male",
+        "email": "jonas.jonaitis@example.lt",
+        "address": "Gedimino pr. 1, Vilnius, Lithuania"
       },
       raw: {
         "@context": [
@@ -364,7 +366,6 @@ export const getData = async (): Promise<WalletData> => {
   }
 
   const decrypted = AES.decrypt(contents.blob, key).toString(enc.Utf8);
-
   return JSON.parse(decrypted);
 };
 

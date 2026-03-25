@@ -3,6 +3,8 @@
 const express = require("express");
 const path = require("path");
 const Database = require("better-sqlite3");
+const { SDJwtInstance } = require('@sd-jwt/core');
+const { digest } = require('@sd-jwt/crypto-nodejs');
 
 // ---------------------------------------------------------------------------
 // Database setup
@@ -113,6 +115,9 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "dist")));
 
+const walletSessions = new Map();
+const crypto = require("crypto");
+
 // ---------------------------------------------------------------------------
 // API routes
 // ---------------------------------------------------------------------------
@@ -131,12 +136,62 @@ app.get("/api/products/:id", (req, res) => {
     res.json({ product, reviews });
 });
 
-/**
- * Wallet mode probe — returns { mode: "mock" } now; will return { mode: "wallet" }
- * after SCRUM-17 integration so the frontend can switch behaviour without code changes.
- */
 app.get("/api/wallet/mode", async (_req, res) => {
-    res.json({ mode: "mock" });
+    res.json({ mode: "wallet" }); // Change to "mock" to not depend on wallet app
+});
+
+app.post("/api/wallet/request", (req, res) => {
+    const nonce = crypto.randomBytes(32).toString('hex');
+    walletSessions.set(nonce, { status: 'pending' });
+    res.json({ nonce });
+});
+
+app.get("/api/wallet/status/:nonce", (req, res) => {
+    const session = walletSessions.get(req.params.nonce);
+    if (!session) return res.status(404).json({ error: "Session not found" });
+    if (session.status === 'complete') {
+        walletSessions.delete(req.params.nonce);
+        res.status(200).json(session.data);
+    } else {
+        res.status(202).json({ status: "pending" });
+    }
+});
+
+app.options("/api/proof", (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.send();
+});
+
+app.post("/api/proof", async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    const { proof } = req.body;
+    if (!proof || typeof proof !== 'string') return res.status(400).json({ error: "Invalid proof format" });
+
+    try {
+        const sdjwt = new SDJwtInstance({
+            hasher: digest
+        });
+
+        const decoded = await sdjwt.decode(proof);
+
+        const kb = decoded.kb || decoded.kbJwt;
+        if (!kb || !kb.payload) throw new Error("Missing KeyBinding");
+
+        const nonce = kb.payload.nonce;
+
+        if (!nonce || !walletSessions.has(nonce)) {
+            return res.status(404).json({ error: "Session not found or expired" });
+        }
+
+        const claims = await sdjwt.getClaims(proof);
+
+        walletSessions.set(nonce, { status: 'complete', data: claims });
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error("Proof processing error:", err);
+        res.status(400).json({ error: "Proof processing failed" });
+    }
 });
 
 /**

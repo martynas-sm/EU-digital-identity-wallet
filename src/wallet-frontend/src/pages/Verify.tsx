@@ -2,18 +2,21 @@ import { useState } from "react";
 import { getData, type Credential } from "@/data/wallet_data";
 import styles from "../components/VerifyPage/Verify.module.css";
 import { ShieldCheck } from "lucide-react";
+import { SDJwtInstance } from '@sd-jwt/core';
+import { digest, generateSalt } from '@sd-jwt/crypto-browser';
 
 type VerificationRequest = {
-  credentialType: string;
-  requestedAttributes: string[];
+  requested_claims: string[];
+  nonce: string;
+  proof_endpoint: string;
   relyingParty?: string;
 };
 
 function Verify() {
   const [jsonInput, setJsonInput] = useState(`{
-    "credentialType": "EuropeanDigitalIdentity",
-    "requestedAttributes": ["Given Name", "Family Name", "Date of Birth"],
-    "relyingParty": "Airport Border Control"
+    "requested_claims": ["Given Name", "Family Name", "Date of Birth"],
+    "nonce": "1234567890",
+    "proof_endpoint": "http://localhost:8000/api/proof"
 }`);
   const [error, setError] = useState("");
   const [request, setRequest] = useState<VerificationRequest | null>(null);
@@ -40,26 +43,28 @@ function Verify() {
       return;
     }
 
-    if (!parsed.credentialType || !Array.isArray(parsed.requestedAttributes)) {
+    if (!Array.isArray(parsed.requested_claims) || !parsed.nonce || !parsed.proof_endpoint) {
       setError(
-        'JSON must contain "credentialType" (string) and "requestedAttributes" (array of strings).',
+        'JSON must contain "requested_claims", "nonce", and "proof_endpoint".'
       );
       return;
     }
 
-    const credential = (await getData()).credentials.find(
-      (c) => c.type === parsed.credentialType,
-    );
+    // Find the best credential that has the requested claims
+    // Alternatively, credential_type could be used but that requires modifying specs/relying-party.md
+    const credentials = (await getData()).credentials;
+    const credential = credentials.find((c) =>
+      parsed.requested_claims.some((claim) => Object.keys(c.subject).includes(claim))
+    ) || credentials[0];
+
     if (!credential) {
-      setError(
-        `No credential of type "${parsed.credentialType}" found in your wallet.`,
-      );
+      setError(`No valid credential found in your wallet.`);
       return;
     }
 
     const initialChecked: Record<string, boolean> = {};
     for (const attr of Object.keys(credential.subject)) {
-      initialChecked[attr] = parsed.requestedAttributes.includes(attr);
+      initialChecked[attr] = parsed.requested_claims.includes(attr);
     }
 
     setRequest(parsed);
@@ -71,8 +76,53 @@ function Verify() {
     setCheckedAttributes((prev) => ({ ...prev, [attr]: !prev[attr] }));
   };
 
-  const handleShare = () => {
-    setShared(true);
+
+  const handleShare = async () => {
+    if (!request || !matchedCredential) return;
+
+    try {
+      // https://github.com/openwallet-foundation/sd-jwt-js/tree/main/examples/sd-jwt-vc-example for reference
+      const sdjwt = new SDJwtInstance({
+        signer: async () => 'mock_signature',
+        signAlg: 'ES256',
+        hasher: digest,
+        hashAlg: 'sha-256',
+        saltGenerator: generateSalt,
+        kbSigner: async () => 'mock_kb_signature',
+        kbSignAlg: 'ES256'
+      });
+
+      const claims = matchedCredential.subject;
+      const disclosureFrame: any = { _sd: Object.keys(claims) };
+
+      const encodedSdjwt = await sdjwt.issue(claims, disclosureFrame);
+
+      const presentationFrame: Record<string, boolean> = {};
+      for (const [attr, checked] of Object.entries(checkedAttributes)) {
+        if (checked) presentationFrame[attr] = true;
+      }
+
+      const kbPayload = {
+        nonce: request.nonce,
+        iat: Math.floor(Date.now() / 1000),
+        aud: request.proof_endpoint,
+      };
+
+      const presentedSdJwt = await sdjwt.present(encodedSdjwt, presentationFrame, {
+        kb: {
+          payload: kbPayload
+        }
+      });
+
+      await fetch(request.proof_endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proof: presentedSdJwt }),
+      });
+      setShared(true);
+    } catch (err) {
+      setError("Failed to share proof with relying party. " + String(err));
+    }
   };
 
   const handleReset = () => {
@@ -104,9 +154,9 @@ function Verify() {
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
             placeholder={`{
-                "credentialType": "EuropeanDigitalIdentity",
-                "requestedAttributes": ["Given Name", "Family Name", "Date of Birth"],
-                "relyingParty": "Airport Border Control"
+                "requested_claims": ["Given Name", "Family Name", "Date of Birth"],
+                "nonce": "1234567890",
+                "proof_endpoint": "http://localhost:8000/api/proof"
                 }`}
             spellCheck={false}
           />
@@ -150,7 +200,7 @@ function Verify() {
               <span>Share</span>
             </div>
             {Object.entries(matchedCredential.subject).map(([attr, value]) => {
-              const isRequested = request.requestedAttributes.includes(attr);
+              const isRequested = request.requested_claims.includes(attr);
               return (
                 <label
                   key={attr}

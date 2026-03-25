@@ -9,6 +9,10 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "better-sqlite3": "^9.4.3"
+    "better-sqlite3": "^9.4.3",
+    "@sd-jwt/core": "^0.7.2",
+    "@sd-jwt/decode": "^0.7.2",
+    "@sd-jwt/crypto-nodejs": "^0.7.2",
+    "@sd-jwt/present": "^0.7.2"
   }
 }
