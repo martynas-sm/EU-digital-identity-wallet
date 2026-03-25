@@ -33,7 +33,7 @@ export async function requestAgeOver18() {
     throw new Error('wallet mode not implemented')
 }
 
-/** Resolves { email?, address?, pseudonym? } */
+/** Resolves { email?, address? } */
 export async function requestCheckoutInfo() {
     if (mode === 'mock') {
         window.alert("EUDI WALLET SIMULATION:\n\nThe relying party is requesting your Delivery Address and Email.")
@@ -43,7 +43,7 @@ export async function requestCheckoutInfo() {
         const address = window.prompt("Wallet Credential [Delivery Address]:")
         if (address === null) throw new Error("Wallet request aborted.")
 
-        return { email: email.trim(), address: address.trim(), pseudonym: 'SpiceEnthusiast42' }
+        return { email: email.trim(), address: address.trim() }
     }
     throw new Error('wallet mode not implemented')
 }

@@ -161,10 +161,10 @@ app.post("/api/reviews", (req, res) => {
 
 /**
  * POST /api/checkout
- * Body: { age_confirmed, items: [{product_id, qty}], email?, address?, pseudonym? }
+ * Body: { age_confirmed, items: [{product_id, qty}], email?, address? }
  */
 app.post("/api/checkout", (req, res) => {
-    const { age_confirmed, items, email, address, pseudonym } = req.body;
+    const { age_confirmed, items, email, address } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0)
         return res.status(400).json({ error: "Cart is empty" });
 
@@ -180,7 +180,7 @@ app.post("/api/checkout", (req, res) => {
     res.json({
         ok: true,
         message: "Order placed successfully!",
-        summary: { items: items.length, email: email || null, address: address || null, pseudonym: pseudonym || null },
+        summary: { items: items.length, email: email || null, address: address || null },
     });
 });
 
