@@ -297,3 +297,68 @@
 .resetButton:hover {
   opacity: 0.85;
 }
+
+.credentialList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.credentialCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background-color: var(--secondary);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--tertiary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease;
+}
+
+.credentialCard:hover {
+  border-color: var(--accent-2);
+}
+
+.claimHeader {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent-2);
+  border-bottom: 1px solid var(--tertiary);
+}
+
+.claimRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.7rem 1.25rem;
+  align-items: center;
+  border-bottom: 1px solid var(--tertiary);
+}
+
+.claimRow:last-child {
+  border-bottom: none;
+}
+
+.claimRow.requested {
+  background-color: rgba(0, 173, 181, 0.08);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: var(--accent-2);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

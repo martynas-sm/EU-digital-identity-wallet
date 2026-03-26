@@ -9,6 +9,8 @@ import Transactions from "./pages/Transactions";
 import LoginUser from "./pages/Login";
 import { useState } from "react";
 import RegisterUser from "./pages/Register";
+import PidProviders from "./pages/PidProviders";
+import PidCallback from "./pages/PidCallback";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
@@ -34,6 +36,8 @@ function App() {
           <Route path="/credentials/:id" element={<CredentialDetail />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/pid-providers" element={<PidProviders />} />
+          <Route path="/pid-callback" element={<PidCallback />} />
         </Routes>
       </main>
     </div>
