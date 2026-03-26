@@ -33,6 +33,7 @@ const CLAIM_LABELS: Record<string, string> = {
   resident_street: "Street",
   resident_house_number: "House Number",
   sex: "Gender",
+  email_address: "Email Address"
 };
 
 function base64UrlEncode(data: Uint8Array): string {
@@ -64,7 +65,7 @@ function getDisclosureMap(
       if (Array.isArray(parsed) && parsed.length >= 3) {
         map.set(parsed[1], { raw: d, salt: parsed[0], value: parsed[2] });
       }
-    } catch {}
+    } catch { }
   }
 
   return map;
@@ -185,11 +186,12 @@ function Verify() {
     }
 
     const walletData = await getData();
-
+    console.log(parsed);
     const matching = walletData.credentials.filter((cred) => {
       const rawSdJwt = (cred.raw as { sd_jwt?: string })?.sd_jwt;
       if (!rawSdJwt) return false;
       const dMap = getDisclosureMap(rawSdJwt);
+      console.log(dMap);
       return parsed.requested_claims.every((claim) => dMap.has(claim));
     });
 

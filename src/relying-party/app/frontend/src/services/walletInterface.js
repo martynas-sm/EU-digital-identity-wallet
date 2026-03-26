@@ -1,26 +1,26 @@
 export async function requestAgeOver18() {
     const data = await handleWalletRequest({
-        requested_claims: ["Date of Birth"]
+        requested_claims: ["birth_date"]
     });
-    const birthYear = data["Date of Birth"] ? new Date(data["Date of Birth"]).getFullYear() : 2000;
+    const birthYear = data["birth_date"] ? new Date(data["birth_date"]).getFullYear() : 2000;
     return { age_over_18: new Date().getFullYear() - birthYear >= 18 };
 }
 
 export async function requestCheckoutInfo() {
     const data = await handleWalletRequest({
-        requested_claims: ["email", "address"]
+        requested_claims: ["email_address", "resident_address"]
     });
-    return { email: data["email"], address: data["address"] };
+    return { email: data["email_address"], address: data["resident_address"] };
 }
 
 export async function requestReviewClaims() {
     const data = await handleWalletRequest({
-        requested_claims: ["Given Name", "Family Name", "Nationality"]
+        requested_claims: ["given_name", "family_name", "nationality"]
     });
     return {
-        first_name: data["Given Name"],
-        family_name: data["Family Name"],
-        nationality: data["Nationality"]
+        first_name: data["given_name"],
+        family_name: data["family_name"],
+        nationality: data["nationality"]
     };
 }
 
@@ -33,10 +33,12 @@ async function handleWalletRequest(requestPayload) {
     const specRequest = {
         ...requestPayload,
         nonce,
-        proof_endpoint: `${window.location.origin}/api/proof`
+        proof_endpoint: `${window.location.origin}/api/proof`,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
     };
 
     const requestJson = JSON.stringify(specRequest, null, 2);
+    const request = btoa(requestJson);
 
-    return showWalletRequestDialog({ requestJson, nonce });
+    return showWalletRequestDialog({ request, nonce });
 }

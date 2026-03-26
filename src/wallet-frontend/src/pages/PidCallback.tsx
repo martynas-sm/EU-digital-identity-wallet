@@ -35,7 +35,7 @@ function parseSdJwt(sdJwt: string): {
     try {
       const [, name, value] = parseDisclosure(d);
       disclosures[name] = value;
-    } catch {}
+    } catch { }
   }
 
   return { header, payload, disclosures };
@@ -55,6 +55,7 @@ const FIELD_LABELS: Record<string, string> = {
   resident_street: "Street",
   resident_house_number: "House Number",
   sex: "Gender",
+  email_address: "Email Address"
 };
 
 function PidCallback() {

@@ -23,7 +23,7 @@ export function WalletRequestDialog() {
             setRequestData(payload)
             setOpen(true)
             setCopied(false)
-            
+
             return new Promise((resolve, reject) => {
                 const interval = setInterval(async () => {
                     try {
@@ -48,8 +48,8 @@ export function WalletRequestDialog() {
     }, [])
 
     const handleCopy = () => {
-        if (requestData?.requestJson) {
-            navigator.clipboard.writeText(requestData.requestJson)
+        if (requestData?.request) {
+            navigator.clipboard.writeText(requestData.request)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         }
@@ -67,7 +67,7 @@ export function WalletRequestDialog() {
                 {requestData && (
                     <div className="space-y-4">
                         <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs text-left">
-                            {requestData.requestJson}
+                            {requestData.request}
                         </pre>
                         <Button className="w-full font-semibold" onClick={handleCopy}>
                             {copied ? 'Copied!' : 'Copy Request'}

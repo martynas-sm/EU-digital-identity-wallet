@@ -191,6 +191,7 @@ def register_routes(app, db):
                 SDObj("resident_street"): record["resident_street"],
                 SDObj("resident_house_number"): record["resident_house_number"],
                 SDObj("sex"): record["sex"],
+                SDObj("email_address"): record["email_address"],
                 "issuing_authority": "Nacionalinis Gyventojų Registras",
                 "issuing_country": "LT",
                 "iss": "https://pid-provider.wallet.test",
