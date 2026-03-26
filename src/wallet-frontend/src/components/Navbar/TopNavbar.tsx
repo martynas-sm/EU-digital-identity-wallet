@@ -99,6 +99,18 @@ function useSessionTimeout({
 
 function TopNavbar({ setToken }: { setToken: (t: string | null) => void }) {
   const navigate = useNavigate();
+  const [showProfile, setShowProfile] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfile(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const { showWarning, continueSession, logoutNow } = useSessionTimeout({
     idleMs: 60 * 1000,
@@ -142,9 +154,20 @@ function TopNavbar({ setToken }: { setToken: (t: string | null) => void }) {
           />
           Walletby
         </div>
-        <button className={styles.profileButton} aria-label="Profile">
-          <User size={22} />
-        </button>
+        <div ref={profileRef} className={styles.profileWrapper}>
+          <button
+            className={styles.profileButton}
+            aria-label="Profile"
+            onClick={() => setShowProfile((v) => !v)}
+          >
+            <User size={22} />
+          </button>
+          {showProfile && (
+            <div className={styles.profilePopover}>
+              {sessionStorage.getItem("username") || "Unknown user"}
+            </div>
+          )}
+        </div>
       </header>
     </>
   );

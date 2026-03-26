@@ -40,3 +40,22 @@
 .profileButton:hover {
   background-color: var(--gray-1);
 }
+
+.profileWrapper {
+  position: relative;
+}
+
+.profilePopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--secondary);
+  border: 1px solid var(--tertiary);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--light-1);
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
