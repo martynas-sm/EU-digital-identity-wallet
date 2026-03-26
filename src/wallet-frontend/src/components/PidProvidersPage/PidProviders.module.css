@@ -1,0 +1,133 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.6rem;
+  color: var(--light-2);
+  margin: 0 0 1.5rem 0;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: var(--light-1);
+  margin: 0 0 1.5rem 0;
+}
+
+.providerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.providerCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--secondary);
+  border: 1px solid var(--tertiary);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.providerCard:hover {
+  background-color: var(--tertiary);
+  border-color: var(--accent-2);
+}
+
+.providerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.providerName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--light-2);
+}
+
+.providerDomain {
+  font-size: 0.8rem;
+  color: var(--gray-1);
+}
+
+.providerArrow {
+  color: var(--accent-2);
+  flex-shrink: 0;
+}
+
+.loading {
+  color: var(--light-1);
+  font-size: 0.95rem;
+}
+
+.error {
+  color: var(--warning);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.empty {
+  color: var(--light-1);
+  font-size: 0.95rem;
+}
+
+.statusSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 2rem;
+}
+
+.statusIcon {
+  color: var(--accent-2);
+}
+
+.statusTitle {
+  font-size: 1.3rem;
+  color: var(--light-2);
+  margin: 0;
+}
+
+.statusText {
+  font-size: 0.9rem;
+  color: var(--light-1);
+  margin: 0;
+  text-align: center;
+}
+
+.successIcon {
+  color: var(--accent-4);
+}
+
+.errorIcon {
+  color: var(--warning);
+}
+
+.backButton {
+  margin-top: 1rem;
+  padding: 0.6rem 1.6rem;
+  background-color: var(--accent-2);
+  color: var(--light-2);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.backButton:hover {
+  opacity: 0.85;
+}
