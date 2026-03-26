@@ -24,34 +24,34 @@ export async function init() {
 export function getMode() { return mode }
 
 /** Resolves { age_over_18: bool } */
-export async function requestAgeOver18() {
+export async function requestAgeOver18(options = {}) {
     if (mode === 'mock') {
         return mockRequestAgeOver18();
     }
     else if (mode == 'wallet') {
-        return walletInterface.requestAgeOver18();
+        return walletInterface.requestAgeOver18(options);
     }
     throw new Error('wallet mode not implemented')
 }
 
 /** Resolves { email?, address? } */
-export async function requestCheckoutInfo() {
+export async function requestCheckoutInfo(options = {}) {
     if (mode === 'mock') {
         return mockRequestCheckoutInfo();
     }
     else if (mode == 'wallet') {
-        return walletInterface.requestCheckoutInfo();
+        return walletInterface.requestCheckoutInfo(options);
     }
     throw new Error('wallet mode not implemented')
 }
 
 /** Resolves { first_name, family_name?, nationality? } */
-export async function requestReviewClaims() {
+export async function requestReviewClaims(options = {}) {
     if (mode === 'mock') {
         return mockRequestReviewClaims();
     }
     else if (mode == 'wallet') {
-        return walletInterface.requestReviewClaims();
+        return walletInterface.requestReviewClaims(options);
     }
     throw new Error('wallet mode not implemented')
 }

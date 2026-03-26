@@ -40,7 +40,10 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
     async function fillWithWallet() {
         setError('')
         try {
-            const creds = await wallet.requestCheckoutInfo()
+            const creds = await wallet.requestCheckoutInfo({
+                title: "Verify Identity for Checkout",
+                description: "Provide your delivery address and email from your EUDI Wallet."
+            })
             setFields({ email: creds.email, address: creds.address })
         } catch (err) {
             setError(err.message)

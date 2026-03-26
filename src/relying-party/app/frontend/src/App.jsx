@@ -15,7 +15,10 @@ export default function App() {
     async function startCheckout() {
         if (cart.hasExtreme() && !ageConfirmed) {
             try {
-                const creds = await wallet.requestAgeOver18()
+                const creds = await wallet.requestAgeOver18({
+                    title: "Verify Age to Enter",
+                    description: "Since this hot sauce is extreme, you must prove you are over 18 using your EUDI Wallet."
+                })
                 if (!creds.age_over_18) {
                     throw new Error("Age verification failed. You must be over 18 to purchase extreme hot sauces.")
                 }

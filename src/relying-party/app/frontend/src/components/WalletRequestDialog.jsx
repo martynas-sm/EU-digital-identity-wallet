@@ -86,9 +86,11 @@ export function WalletRequestDialog() {
         <Dialog open={open} onOpenChange={v => !v && handleClose()}>
             <DialogContent className="sm:max-w-md" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
-                    <DialogTitle className="text-xl">Waiting for Wallet Verification</DialogTitle>
+                    <DialogTitle className="text-xl">
+                        {requestData?.title || 'Waiting for Wallet Verification'}
+                    </DialogTitle>
                     <DialogDescription>
-                        Please copy the request below and paste it into the Wallet Verify page.
+                        {requestData?.description || 'Please copy the request below and paste it into the Wallet Verify page.'}
                     </DialogDescription>
                 </DialogHeader>
                 {requestData && (
