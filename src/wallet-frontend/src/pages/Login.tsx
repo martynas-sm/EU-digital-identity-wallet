@@ -60,6 +60,7 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
       if ("token" in contents) {
         // a cookie should be used instead?
         sessionStorage.setItem("token", contents.token);
+        sessionStorage.setItem("username", username);
         setToken(contents.token);
 
         sessionStorage.setItem("blob_key", SHA256(password).toString());
