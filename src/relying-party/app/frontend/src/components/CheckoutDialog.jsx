@@ -10,9 +10,8 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [fields, setFields] = useState({ email: '', address: '' })
-    const [pseudonym, setPseudonym] = useState(null)
 
-    function reset() { setStep('form'); setError(''); setFields({ email: '', address: '' }); setPseudonym(null) }
+    function reset() { setStep('form'); setError(''); setFields({ email: '', address: '' }); }
     function handleClose() { reset(); onClose() }
 
     async function placeOrder() {
@@ -22,7 +21,6 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
             items: cart.getItems().map(i => ({ product_id: i.id, qty: i.qty ?? 1 })),
             email: fields.email || null,
             address: fields.address || null,
-            pseudonym: pseudonym || null,
         }
         try {
             const res = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -42,9 +40,11 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
     async function fillWithWallet() {
         setError('')
         try {
-            const creds = await wallet.requestCheckoutInfo()
+            const creds = await wallet.requestCheckoutInfo({
+                title: "Verify Identity for Checkout",
+                description: "Provide your delivery address and email from your EUDI Wallet."
+            })
             setFields({ email: creds.email, address: creds.address })
-            setPseudonym(creds.pseudonym)
         } catch (err) {
             setError(err.message)
         }

@@ -22,7 +22,10 @@ export function ReviewDialog({ open, productId, onClose, onPosted }) {
         setLoading(true); setError('')
         try {
             // Native redirect mock
-            const creds = await wallet.requestReviewClaims()
+            const creds = await wallet.requestReviewClaims({
+                title: "Verify Identity for Review",
+                description: "Share your verified First Name from your EUDI Wallet to post a review."
+            })
 
             const res = await fetch('/api/reviews', {
                 method: 'POST',

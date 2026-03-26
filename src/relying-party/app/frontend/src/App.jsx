@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { CartSheet } from '@/components/CartSheet'
 import { CheckoutDialog } from '@/components/CheckoutDialog'
+import { WalletRequestDialog } from '@/components/WalletRequestDialog'
 import { ShopPage } from '@/pages/ShopPage'
 import { ProductPage } from '@/pages/ProductPage'
 import * as cart from '@/services/cart'
@@ -14,7 +15,10 @@ export default function App() {
     async function startCheckout() {
         if (cart.hasExtreme() && !ageConfirmed) {
             try {
-                const creds = await wallet.requestAgeOver18()
+                const creds = await wallet.requestAgeOver18({
+                    title: "Verify Age to Enter",
+                    description: "Since this hot sauce is extreme, you must prove you are over 18 using your EUDI Wallet."
+                })
                 if (!creds.age_over_18) {
                     throw new Error("Age verification failed. You must be over 18 to purchase extreme hot sauces.")
                 }
@@ -49,6 +53,7 @@ export default function App() {
                 ageConfirmed={ageConfirmed}
                 onClose={() => { setCheckoutOpen(false); setAgeConfirmed(false) }}
             />
+            <WalletRequestDialog />
         </div>
     )
 }
