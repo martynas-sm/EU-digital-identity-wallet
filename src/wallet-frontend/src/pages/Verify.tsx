@@ -186,12 +186,10 @@ function Verify() {
     }
 
     const walletData = await getData();
-    console.log(parsed);
     const matching = walletData.credentials.filter((cred) => {
       const rawSdJwt = (cred.raw as { sd_jwt?: string })?.sd_jwt;
       if (!rawSdJwt) return false;
       const dMap = getDisclosureMap(rawSdJwt);
-      console.log(dMap);
       return parsed.requested_claims.every((claim) => dMap.has(claim));
     });
 
