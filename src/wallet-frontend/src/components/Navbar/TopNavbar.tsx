@@ -18,7 +18,7 @@ type UseSessionTimeoutOptions = {
   onLogout: () => void;
 };
 
-export function useSessionTimeout({
+function useSessionTimeout({
   idleMs,
   warningMs,
   onLogout,
