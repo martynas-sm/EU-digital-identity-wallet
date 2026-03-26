@@ -97,7 +97,7 @@ function useSessionTimeout({
   return { showWarning, continueSession, logoutNow };
 }
 
-function TopNavbar() {
+function TopNavbar({ setToken }: { setToken: (t: string | null) => void }) {
   const navigate = useNavigate();
 
   const { showWarning, continueSession, logoutNow } = useSessionTimeout({
@@ -105,6 +105,7 @@ function TopNavbar() {
     warningMs: 30 * 1000,
     onLogout: () => {
       sessionStorage.removeItem("token");
+      setToken(null);
       navigate("/");
     },
   });
