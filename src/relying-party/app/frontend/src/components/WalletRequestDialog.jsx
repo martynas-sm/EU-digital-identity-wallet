@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 
@@ -17,9 +17,14 @@ export function WalletRequestDialog() {
     const [open, setOpen] = useState(false)
     const [requestData, setRequestData] = useState(null)
     const [copied, setCopied] = useState(false)
+    const activeRequestRef = useRef(null)
 
     useEffect(() => {
         const handler = (payload) => {
+            if (activeRequestRef.current) {
+                activeRequestRef.current.cancel(new Error("Superseded by a new wallet request"))
+            }
+
             setRequestData(payload)
             setOpen(true)
             setCopied(false)
@@ -31,20 +36,34 @@ export function WalletRequestDialog() {
                         if (pollRes.status === 200) {
                             const data = await pollRes.json();
                             clearInterval(interval);
+                            activeRequestRef.current = null;
                             setOpen(false);
                             resolve(data);
                         } else if (pollRes.status === 404) {
                             clearInterval(interval);
+                            activeRequestRef.current = null;
                             setOpen(false);
                             reject(new Error('Wallet session not found or expired'));
                         }
                     } catch { }
                 }, 1000);
+
+                activeRequestRef.current = {
+                    cancel: (err) => {
+                        clearInterval(interval);
+                        reject(err || new Error('User cancelled wallet request'));
+                    }
+                }
             });
         };
 
         registerWalletDialog(handler)
-        return () => registerWalletDialog(null)
+        return () => {
+            if (activeRequestRef.current) {
+                activeRequestRef.current.cancel(new Error('Wallet request dialog unmounted'));
+            }
+            registerWalletDialog(null)
+        }
     }, [])
 
     const handleCopy = () => {
@@ -55,8 +74,16 @@ export function WalletRequestDialog() {
         }
     }
 
+    const handleClose = () => {
+        if (activeRequestRef.current) {
+            activeRequestRef.current.cancel();
+            activeRequestRef.current = null;
+        }
+        setOpen(false);
+    }
+
     return (
-        <Dialog open={open}>
+        <Dialog open={open} onOpenChange={v => !v && handleClose()}>
             <DialogContent className="sm:max-w-md" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle className="text-xl">Waiting for Wallet Verification</DialogTitle>
