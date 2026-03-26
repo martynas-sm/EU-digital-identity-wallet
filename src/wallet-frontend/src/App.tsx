@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div className={styles.appWrapper}>
-      <TopNavbar />
+      <TopNavbar setToken={setToken} />
       <SideNavbar setToken={setToken} />
       <main className={styles.mainContent}>
         <Routes>
