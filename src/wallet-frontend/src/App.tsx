@@ -11,6 +11,7 @@ import { useState } from "react";
 import RegisterUser from "./pages/Register";
 import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
+import SignDocument from "./pages/SignDocument";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
@@ -38,6 +39,7 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/pid-providers" element={<PidProviders />} />
           <Route path="/pid-callback" element={<PidCallback />} />
+          <Route path="/sign" element={<SignDocument />} />
         </Routes>
       </main>
     </div>
