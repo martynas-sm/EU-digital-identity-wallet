@@ -5,7 +5,6 @@ import urllib.parse
 from jwcrypto import jwk
 from sd_jwt.issuer import SDJWTIssuer
 from sd_jwt.common import SDObj
-import json
 
 
 # Background task to clean up expired PIDs that have not been retreived
@@ -89,4 +88,3 @@ async def generate_pid(db, app, pan: str, pub_key, passkey: str):
             "INSERT INTO issued_pids (passkey, sd_jwt) VALUES (:passkey, :sd_jwt)",
             {"passkey": hashed_passkey, "sd_jwt": token}
         )
-

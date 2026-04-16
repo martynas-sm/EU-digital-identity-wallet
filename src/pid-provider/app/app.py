@@ -24,6 +24,7 @@ db = QuartDB(app, url=DB_URL)
 
 register_routes(app, db)
 
+
 @app.before_serving
 async def startup():
     with open('keys/private_key.pem', 'r') as f:

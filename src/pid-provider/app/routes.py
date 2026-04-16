@@ -1,10 +1,6 @@
 from functools import partial
 from quart import request, session, redirect, url_for, render_template, jsonify, Blueprint
-from jwcrypto import jwk
-from sd_jwt.issuer import SDJWTIssuer
-from sd_jwt.common import SDObj
 from quart_cors import cors
-import time
 import hashlib
 import urllib.parse
 import pyotp
@@ -125,18 +121,17 @@ def register_routes(app, db):
         if not pan or not session.get('totp_authenticated'):
             return redirect(url_for('main.login'))
 
-        # Generate a new pre-authorized code (base64url, 32 chars)
-        code = secrets.token_urlsafe(24)[:32]
-        print(code, flush=True)
+        # One time code for auth
+        code = secrets.token_urlsafe()[:32]
         async with db.connection() as conn:
-            # Remove any previous active codes for this session/user to prevent clutter
+            # Remove previous code and create a new one
             await conn.execute("DELETE FROM issuance_codes WHERE pan = :pan", {"pan": pan})
             await conn.execute(
                 "INSERT INTO issuance_codes (code, pan) VALUES (:code, :pan)",
                 {"code": code, "pan": pan}
             )
 
-        # Build credential offer URI for the QR code
+        # Credentials offer for QR code
         offer_uri = f"openid-credential-offer://?credential_offer_uri=https://{PUBLIC_DOMAIN}/api/credential-offer/{code}"
 
         # Fetches the citizen from the database by personal ID
@@ -183,7 +178,7 @@ def register_routes(app, db):
             return jsonify({"error": str(e)}), 500
 
     @public_route('/api/request-pid-code', methods=['POST', 'OPTIONS'])
-    async def bind_code():
+    async def create_pid_code():
         if request.method == 'OPTIONS':
             return jsonify({"success": True}), 200
 
@@ -195,6 +190,8 @@ def register_routes(app, db):
         pub_key = data.get('pub_key')
         passkey = data.get('passkey')
 
+        # If public key is of dictionary type, convert it to a string
+        # because in generate_pid() it comes as a string
         if isinstance(pub_key, dict):
             pub_key = urllib.parse.quote(json.dumps(pub_key))
 
@@ -238,7 +235,7 @@ def register_routes(app, db):
     @public_route('/.well-known/credential-issuer', methods=['GET'])
     async def credential_issuer_metadata():
         metadata = {
-            "credential_issuer": f"https://{PUBLIC_DOMAIN}",
+            "credential_issuer": f"https://{MAIN_DOMAIN}",
             "credential_endpoint": f"https://{PUBLIC_DOMAIN}/api/request-pid-code",
             "credential_configurations_supported": {
                 "eu.europa.ec.eudi.pid": {
