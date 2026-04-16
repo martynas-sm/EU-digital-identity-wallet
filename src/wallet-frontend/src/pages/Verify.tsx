@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getData, addTransaction, type Credential } from "@/data/wallet_data";
 import styles from "../components/VerifyPage/Verify.module.css";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, Info, AlertTriangle } from "lucide-react";
 
 type VerificationRequest = {
   requested_claims: string[];
@@ -137,6 +137,8 @@ function Verify() {
   const [matchedClaims, setMatchedClaims] = useState<
     { name: string; label: string; value: string }[]
   >([]);
+  const [isTrustedRelyingParty, setIsTrustedRelyingParty] = useState<boolean | null>(null);
+  const [relyingPartyName, setRelyingPartyName] = useState<string | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -190,6 +192,22 @@ function Verify() {
       setError("This verification request has expired.");
       return;
     }
+
+    let trusted = false;
+    let rpName = "";
+    try {
+      const url = `https://public.trusted-list.wallet.test/api/relying-party?proof_endpoint=${encodeURIComponent(parsed.proof_endpoint)}`;
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const data = await resp.json();
+        trusted = true;
+        rpName = data.name || new URL(parsed.proof_endpoint).hostname;
+      }
+    } catch {
+      // Ignore fetch errors, assume untrusted
+    }
+    setIsTrustedRelyingParty(trusted);
+    setRelyingPartyName(rpName);
 
     const walletData = await getData();
     const matching = walletData.credentials.filter((cred) => {
@@ -331,6 +349,8 @@ function Verify() {
     setMatchingCredentials([]);
     setSelectedCredential(null);
     setMatchedClaims([]);
+    setIsTrustedRelyingParty(null);
+    setRelyingPartyName(null);
   };
 
   return (
@@ -376,6 +396,18 @@ function Verify() {
             </strong>
           </p>
 
+          {isTrustedRelyingParty ? (
+            <div className={styles.infoMessage}>
+              <Info size={20} className={styles.messageIcon} />
+              <span>Relying party <strong>{relyingPartyName}</strong> is part of the trusted list.</span>
+            </div>
+          ) : (
+            <div className={styles.warningMessage}>
+              <AlertTriangle size={20} className={styles.messageIcon} />
+              <span>Warning: This relying party is not verified by the trust list.</span>
+            </div>
+          )}
+
           <p className={styles.label}>Select a credential to use:</p>
 
           <div className={styles.credentialList}>
@@ -406,6 +438,18 @@ function Verify() {
             requesting the following claims from your{" "}
             <strong>{selectedCredential.title}</strong>:
           </p>
+
+          {isTrustedRelyingParty ? (
+            <div className={styles.infoMessage}>
+              <Info size={20} className={styles.messageIcon} />
+              <span>Relying party <strong>{relyingPartyName}</strong> is part of the trusted list.</span>
+            </div>
+          ) : (
+            <div className={styles.warningMessage}>
+              <AlertTriangle size={20} className={styles.messageIcon} />
+              <span>Warning: This relying party is not verified by the trust list.</span>
+            </div>
+          )}
 
           <div className={styles.credentialInfo}>
             <span className={styles.credType}>{selectedCredential.title}</span>

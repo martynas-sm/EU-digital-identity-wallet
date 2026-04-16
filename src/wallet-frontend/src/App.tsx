@@ -13,35 +13,95 @@ import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
 import Scan from "./pages/Scan";
+import Protected from "./pages/Protected";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
 
-  if (token == null) {
-    return (
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/register" element={<RegisterUser />} />
-        <Route path="/login" element={<LoginUser setToken={setToken} />} />
-      </Routes>
-    );
-  }
-
   return (
     <div className={styles.appWrapper}>
-      <TopNavbar setToken={setToken} />
-      <SideNavbar setToken={setToken} />
+      {token && <TopNavbar setToken={setToken} />}
+      {token && <SideNavbar setToken={setToken} />}
+
       <main className={styles.mainContent}>
         <Routes>
-          <Route path="/" element={<Navigate to="/credentials" replace />} />
-          <Route path="/credentials" element={<Credentials />} />
-          <Route path="/credentials/:id" element={<CredentialDetail />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/pid-providers" element={<PidProviders />} />
-          <Route path="/pid-callback" element={<PidCallback />} />
-          <Route path="/sign" element={<SignDocument />} />
-          <Route path="/scan" element={<Scan />} />
+          <Route path="/login" element={<LoginUser setToken={setToken} />} />
+          <Route path="/register" element={<RegisterUser />} />
+
+          <Route
+            path="/"
+            element={
+              <Protected>
+                <Navigate to="/credentials" replace />
+              </Protected>
+            }
+          />
+          <Route
+            path="/credentials"
+            element={
+              <Protected>
+                <Credentials />
+              </Protected>
+            }
+          />
+          <Route
+            path="/credentials/:id"
+            element={
+              <Protected>
+                <CredentialDetail />
+              </Protected>
+            }
+          />
+          <Route
+            path="/verify"
+            element={
+              <Protected>
+                <Verify />
+              </Protected>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <Protected>
+                <Transactions />
+              </Protected>
+            }
+          />
+          <Route
+            path="/pid-providers"
+            element={
+              <Protected>
+                <PidProviders />
+              </Protected>
+            }
+          />
+          <Route
+            path="/pid-callback"
+            element={
+              <Protected>
+                <PidCallback />
+              </Protected>
+            }
+          />
+          <Route
+            path="/sign"
+            element={
+              <Protected>
+                <SignDocument />
+              </Protected>
+            }
+          />
+          <Route
+            path="/scan"
+            element={
+              <Protected>
+                <Scan />
+              </Protected>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

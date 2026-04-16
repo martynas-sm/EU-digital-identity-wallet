@@ -12,8 +12,6 @@
     "ci-dry-run": "npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
-    "@signpdf/signer-p12": "^3.3.0",
-    "@signpdf/signpdf": "^3.3.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/crypto-js": "^4.2.2",
     "bootstrap": "^5.3.8",
@@ -26,9 +24,11 @@
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
+    "react-qr-code": "^2.0.18",
     "react-router-dom": "^7.13.1",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
