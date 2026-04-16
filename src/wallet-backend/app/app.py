@@ -18,6 +18,7 @@ from io import BytesIO
 
 app = Quart(__name__)
 app.config["QUART_AUTH_MODE"] = "bearer"
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 app.secret_key = secrets.token_urlsafe(16)
 app = cors(
     app,
