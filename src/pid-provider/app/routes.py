@@ -8,6 +8,10 @@ import time
 import hashlib
 import urllib.parse
 import pyotp
+import secrets
+import json
+
+from utils import generate_pid
 
 MAIN_DOMAIN = 'pid-provider.wallet.test'
 PUBLIC_DOMAIN = 'public.pid-provider.wallet.test'
@@ -121,14 +125,28 @@ def register_routes(app, db):
         if not pan or not session.get('totp_authenticated'):
             return redirect(url_for('main.login'))
 
+        # Generate a new pre-authorized code (base64url, 32 chars)
+        code = secrets.token_urlsafe(24)[:32]
+        print(code, flush=True)
+        async with db.connection() as conn:
+            # Remove any previous active codes for this session/user to prevent clutter
+            await conn.execute("DELETE FROM issuance_codes WHERE pan = :pan", {"pan": pan})
+            await conn.execute(
+                "INSERT INTO issuance_codes (code, pan) VALUES (:code, :pan)",
+                {"code": code, "pan": pan}
+            )
+
+        # Build credential offer URI for the QR code
+        offer_uri = f"openid-credential-offer://?credential_offer_uri=https://{PUBLIC_DOMAIN}/api/credential-offer/{code}"
+
         # Fetches the citizen from the database by personal ID
         async with db.connection() as conn:
             record = await conn.fetch_first("SELECT * FROM citizens WHERE personal_administrative_number = :pan", {"pan": pan})
 
-        return await render_template('dashboard.html', citizen=dict(record))
+        return await render_template('dashboard.html', citizen=dict(record), issuance_code=code, offer_uri=offer_uri)
 
     @main_route('/api/request-pid', methods=['GET'])
-    async def generate_pid():
+    async def create_pid():
 
         # Arguments from URL
         pub_key = request.args.get('pub_key')
@@ -155,71 +173,48 @@ def register_routes(app, db):
             return redirect(url_for('main.login'))
 
         try:
-            async with db.connection() as conn:
-                record = await conn.fetch_first(
-                    "SELECT * FROM citizens WHERE personal_administrative_number = :pan",
-                    {"pan": session.get('pan')}
-                )
-
-            parsed_pub_key = None
-
-            try:
-                # Decodes url encoding of JWK key
-                decoded_key = urllib.parse.unquote(pub_key)
-                parsed_pub_key = jwk.JWK.from_json(decoded_key)
-            except Exception as e:
-                return jsonify({"error": f"Invalid JWK format from wallet: {str(e)}"}), 400
-
-            # Mandatory (and some optional) attributes according to
-            # https://github.com/eu-digital-identity-wallet/eudi-doc-attestation-rulebooks-catalog/blob/main/rulebooks/pid/pid-rulebook.md#2-pid-attributes-and-metadata
-
-            # Attributes wrapped in SDObj are Selective Disclose Objects, and are
-            # hashed individually. This allows the wallet user to prove individual
-            # facts
-
-            user_claims = {
-                SDObj("given_name"): record["given_name"],
-                SDObj("family_name"): record["family_name"],
-                SDObj("birth_date"): str(record["birth_date"]),
-                SDObj("birth_place"): record["birth_place"],
-                SDObj("nationality"): record["nationality"],
-                SDObj("resident_address"): record["resident_address"],
-                SDObj("resident_country"): record["resident_country"],
-                SDObj("resident_state"): record["resident_state"],
-                SDObj("resident_city"): record["resident_city"],
-                SDObj("resident_postal_code"): record["resident_postal_code"],
-                SDObj("resident_street"): record["resident_street"],
-                SDObj("resident_house_number"): record["resident_house_number"],
-                SDObj("sex"): record["sex"],
-                SDObj("email_address"): record["email_address"],
-                "issuing_authority": "Nacionalinis Gyventojų Registras",
-                "issuing_country": "LT",
-                "iss": "https://pid-provider.wallet.test",
-                "iat": int(time.time()),
-                "exp": int(time.time()) + (60*60*24*120),
-                "cnf": {"jwk": parsed_pub_key.export_public(as_dict=True)}
-            }
-
-            issuer = SDJWTIssuer(
-                user_claims=user_claims,
-                issuer_key=app.issuer_key,
-                holder_key=parsed_pub_key,
-                sign_alg="ES256"
-            )
-            token = issuer.sd_jwt_issuance
-
-            # Save to Issued PID to database
-            hashed_passkey = hashlib.sha256(passkey.encode()).hexdigest()
-            async with db.connection() as conn:
-                await conn.execute(
-                    "INSERT INTO issued_pids (passkey, sd_jwt) VALUES (:passkey, :sd_jwt)",
-                    {"passkey": hashed_passkey, "sd_jwt": token}
-                )
+            await generate_pid(db, app, session.get('pan'), pub_key, passkey)
 
             # Clear generate_state if it was set
             session.pop('generate_state', None)
 
             return redirect(redirect_uri)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @public_route('/api/request-pid-code', methods=['POST', 'OPTIONS'])
+    async def bind_code():
+        if request.method == 'OPTIONS':
+            return jsonify({"success": True}), 200
+
+        data = await request.get_json()
+        if not data:
+            return jsonify({"error": "Missing JSON body"}), 400
+
+        code = data.get('code')
+        pub_key = data.get('pub_key')
+        passkey = data.get('passkey')
+
+        if isinstance(pub_key, dict):
+            pub_key = urllib.parse.quote(json.dumps(pub_key))
+
+        if not all([code, pub_key, passkey]):
+            return jsonify({"error": "Missing parameters"}), 400
+
+        async with db.connection() as conn:
+            record = await conn.fetch_first(
+                "SELECT pan FROM issuance_codes WHERE code = :code AND created_at >= NOW() - INTERVAL '2 minutes'",
+                {"code": code}
+            )
+            if not record:
+                return jsonify({"error": "Invalid or expired code"}), 400
+
+            code_pan = record['pan']
+            await conn.execute("DELETE FROM issuance_codes WHERE code = :code", {"code": code})
+
+        try:
+            await generate_pid(db, app, code_pan, pub_key, passkey)
+            return jsonify({"success": True})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -239,6 +234,50 @@ def register_routes(app, db):
                 return jsonify({"pid": record['sd_jwt']})
         # If token is not found
         return jsonify({"error": "passkey doesn't match or expired"}), 404
+
+    @public_route('/.well-known/credential-issuer', methods=['GET'])
+    async def credential_issuer_metadata():
+        metadata = {
+            "credential_issuer": f"https://{PUBLIC_DOMAIN}",
+            "credential_endpoint": f"https://{PUBLIC_DOMAIN}/api/request-pid-code",
+            "credential_configurations_supported": {
+                "eu.europa.ec.eudi.pid": {
+                    "format": "sd-jwt",
+                    "cryptographic_binding_methods_supported": ["jwk"],
+                    "credential_signing_alg_values_supported": ["ES256"],
+                    "claims": {
+                        "given_name": {}, "family_name": {}, "birth_date": {},
+                        "birth_place": {}, "nationality": {},
+                        "resident_address": {}, "resident_country": {},
+                        "resident_state": {}, "resident_city": {},
+                        "resident_postal_code": {}, "resident_street": {},
+                        "resident_house_number": {}, "sex": {}, "email_address": {}
+                    }
+                }
+            }
+        }
+        return jsonify(metadata)
+
+    @public_route('/api/credential-offer/<code>', methods=['GET'])
+    async def credential_offer(code):
+        async with db.connection() as conn:
+            record = await conn.fetch_first(
+                "SELECT pan FROM issuance_codes WHERE code = :code AND created_at >= NOW() - INTERVAL '2 minutes'",
+                {"code": code}
+            )
+        if not record:
+            return jsonify({"error": "Invalid or expired code"}), 404
+
+        offer = {
+            "credential_issuer": f"https://{PUBLIC_DOMAIN}",
+            "credential_configuration_ids": ["eu.europa.ec.eudi.pid"],
+            "grants": {
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+                    "pre-authorized_code": code
+                }
+            }
+        }
+        return jsonify(offer)
 
     app.register_blueprint(main)
     app.register_blueprint(public)

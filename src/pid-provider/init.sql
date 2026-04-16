@@ -24,6 +24,12 @@ CREATE TABLE IF NOT EXISTS issued_pids (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS issuance_codes (
+    code VARCHAR(32) PRIMARY KEY,
+    pan VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 INSERT INTO citizens (
     given_name, family_name, birth_date, birth_place, nationality, resident_address, resident_country,
     resident_state, resident_city, resident_postal_code, resident_street, resident_house_number,

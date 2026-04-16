@@ -232,3 +232,53 @@ input[name="code"] {
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
 }
+
+.code-container {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.timer-text {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.code-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.offer_uri {
+    font-size: 12px;
+    background: var(--bg-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 5px;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background: white;
+    width: fit-content;
+    margin: 0 auto 15px auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
