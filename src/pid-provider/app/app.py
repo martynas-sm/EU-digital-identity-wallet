@@ -1,11 +1,12 @@
 import os
-import asyncio
+
 import json
 from quart import Quart
 from quart_db import QuartDB
 from jwcrypto import jwk
 
 from routes import register_routes
+from utils import cleanup_expired_entries
 
 PGUSER = os.getenv('PGUSER')
 PGPASSWORD = os.getenv('PGPASSWORD')
@@ -24,20 +25,6 @@ db = QuartDB(app, url=DB_URL)
 register_routes(app, db)
 
 
-# Background task to clean up expired PIDs that have not been retreived
-async def cleanup_expired_pids():
-    while True:
-        await asyncio.sleep(60)
-        try:
-            async with db.connection() as conn:
-                await conn.execute("""
-                    DELETE FROM issued_pids
-                    WHERE created_at < NOW() - INTERVAL '2 minutes'
-                """)
-        except Exception:
-            pass
-
-
 @app.before_serving
 async def startup():
     with open('keys/private_key.pem', 'r') as f:
@@ -49,7 +36,7 @@ async def startup():
         print(json.dumps(jwk.JWK.from_pem(f.read())
                                 .export_public(as_dict=True)), flush=True)
 
-    app.add_background_task(cleanup_expired_pids)
+    app.add_background_task(cleanup_expired_entries, db)
 
 
 if __name__ == "__main__":

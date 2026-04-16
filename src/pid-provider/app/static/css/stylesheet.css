@@ -1,0 +1,284 @@
+:root {
+    --bg-color: white;
+    --text-color: #000;
+    --border-color: #ccc;
+    --card-bg: #fff;
+    --primary-color: green;
+    --primary-hover: darkgreen;
+    --error-color: red;
+    --hint-color: #555;
+    --label-color: #666;
+    --row-border: #eee;
+    --logout-color: #d9534f;
+    --logout-hover-bg: #f9ebeb;
+    --input-bg: #fff;
+    --heading-color: #333;
+    --svg: url('https://api.iconify.design/mdi/lightbulb-off.svg');
+}
+
+[theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --border-color: #444;
+    --card-bg: #1e1e1e;
+    --hint-color: #aaa;
+    --label-color: #bbb;
+    --row-border: #333;
+    --logout-hover-bg: #331a1a;
+    --input-bg: #2a2a2a;
+    --heading-color: #e0e0e0;
+    --svg: url('https://api.iconify.design/mdi/lightbulb-on.svg');
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Arial';
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.header {
+    color: var(--primary-color);
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    margin: 0;
+}
+
+.login-container,
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+form {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    background-color: var(--card-bg);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+input,
+button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+.error {
+    color: var(--error-color);
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.auth-container form {
+    width: 320px;
+}
+
+input[name="code"] {
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.auth-container button {
+    margin-top: 10px;
+}
+
+.auth-container p {
+    font-size: 14px;
+    color: var(--hint-color);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.auth-container h3 {
+    margin-bottom: 10px;
+    color: var(--heading-color);
+}
+
+.profile-card {
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+    background-color: var(--card-bg);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-card h3 {
+    color: var(--heading-color);
+    margin-top: 0;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--row-border);
+    transition: border-bottom-color 0.3s ease;
+}
+
+.data-row:last-of-type {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: bold;
+    color: var(--label-color);
+    font-size: 14px;
+}
+
+.value {
+    color: var(--text-color);
+    font-size: 14px;
+    text-align: right;
+}
+
+.actions {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-logout {
+    padding: 12px;
+    background-color: transparent;
+    color: var(--logout-color);
+    border: 1px solid var(--logout-color);
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: var(--logout-hover-bg);
+}
+
+.theme-btn {
+    background: transparent;
+    font-size: 28px;
+    cursor: pointer;
+    position: absolute;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+    transition: transform 0.2s, color 0.3s ease, border-color 0.3s ease;
+    line-height: 1;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+    background-color: transparent;
+}
+
+.theme-btn::before {
+    content: "";
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    background-color: var(--text-color);
+    -webkit-mask-image: var(--svg);
+    mask-image: var(--svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+}
+
+.code-container {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.timer-text {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.code-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.offer_uri {
+    font-size: 12px;
+    background: var(--bg-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 5px;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background: white;
+    width: fit-content;
+    margin: 0 auto 15px auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}

@@ -14,6 +14,7 @@ import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
 import Scan from "./pages/Scan";
 import Protected from "./pages/Protected";
+import Scan from "./pages/Scan";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
