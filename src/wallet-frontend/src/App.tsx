@@ -12,6 +12,7 @@ import RegisterUser from "./pages/Register";
 import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
+import Scan from "./pages/Scan";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
@@ -40,6 +41,7 @@ function App() {
           <Route path="/pid-providers" element={<PidProviders />} />
           <Route path="/pid-callback" element={<PidCallback />} />
           <Route path="/sign" element={<SignDocument />} />
+          <Route path="/scan" element={<Scan />} />
         </Routes>
       </main>
     </div>
