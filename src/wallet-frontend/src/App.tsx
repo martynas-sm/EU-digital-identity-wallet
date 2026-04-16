@@ -92,6 +92,14 @@ function App() {
               </Protected>
             }
           />
+          <Route
+            path="/scan"
+            element={
+              <Protected>
+                <Scan />
+              </Protected>
+            }
+          />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
