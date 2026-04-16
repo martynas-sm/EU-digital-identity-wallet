@@ -12,6 +12,7 @@ import RegisterUser from "./pages/Register";
 import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
+import Scan from "./pages/Scan";
 import Protected from "./pages/Protected";
 
 function App() {
@@ -88,6 +89,14 @@ function App() {
             element={
               <Protected>
                 <SignDocument />
+              </Protected>
+            }
+          />
+          <Route
+            path="/scan"
+            element={
+              <Protected>
+                <Scan />
               </Protected>
             }
           />

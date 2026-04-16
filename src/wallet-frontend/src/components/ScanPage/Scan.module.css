@@ -1,0 +1,140 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.6rem;
+  color: var(--light-2);
+  margin: 0 0 1.5rem 0;
+}
+
+.scannerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: var(--light-1);
+  text-align: center;
+  margin: 0;
+}
+
+.scannerWrapper {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--app-surface);
+  border: 1px solid var(--tertiary);
+}
+
+.error {
+  color: var(--warning);
+  font-size: 0.85rem;
+  margin: 0;
+  text-align: center;
+}
+
+.startButton {
+  padding: 0.6rem 1.6rem;
+  background-color: var(--accent-2);
+  color: var(--light-2);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.startButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.startButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stopButton {
+  padding: 0.6rem 1.6rem;
+  background: none;
+  border: 1px solid var(--tertiary);
+  color: var(--light-1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.stopButton:hover {
+  background-color: var(--tertiary);
+}
+
+.permissionSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.permissionIcon {
+  color: var(--accent-2);
+}
+
+.permissionText {
+  font-size: 0.95rem;
+  color: var(--light-1);
+  text-align: center;
+  margin: 0;
+  max-width: 400px;
+}
+
+.successSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.successIcon {
+  color: var(--accent-4);
+}
+
+.successTitle {
+  font-size: 1.3rem;
+  color: var(--light-2);
+  margin: 0;
+}
+
+.successText {
+  font-size: 0.9rem;
+  color: var(--light-1);
+  margin: 0;
+  text-align: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: var(--accent-2);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

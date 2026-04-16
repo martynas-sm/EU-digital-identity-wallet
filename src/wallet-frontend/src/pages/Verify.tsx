@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getData, addTransaction, type Credential } from "@/data/wallet_data";
 import styles from "../components/VerifyPage/Verify.module.css";
 import { ShieldCheck, Loader2, Info, AlertTriangle } from "lucide-react";
@@ -33,7 +34,7 @@ const CLAIM_LABELS: Record<string, string> = {
   resident_street: "Street",
   resident_house_number: "House Number",
   sex: "Gender",
-  email_address: "Email Address"
+  email_address: "Email Address",
 };
 
 function base64UrlEncode(data: Uint8Array): string {
@@ -65,7 +66,7 @@ function getDisclosureMap(
       if (Array.isArray(parsed) && parsed.length >= 3) {
         map.set(parsed[1], { raw: d, salt: parsed[0], value: parsed[2] });
       }
-    } catch { }
+    } catch {}
   }
 
   return map;
@@ -139,17 +140,22 @@ function Verify() {
   const [isTrustedRelyingParty, setIsTrustedRelyingParty] = useState<boolean | null>(null);
   const [relyingPartyName, setRelyingPartyName] = useState<string | null>(null);
 
-  const handleDecode = async () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleDecode = async (inputOverride?: string) => {
     setError("");
 
-    if (!base64Input.trim()) {
+    const input = inputOverride ?? base64Input;
+
+    if (!input.trim()) {
       setError("Please paste a verification request.");
       return;
     }
 
     let json: string;
     try {
-      json = atob(base64Input.trim());
+      json = atob(input.trim());
     } catch {
       setError("Invalid base64 encoding.");
       return;
@@ -225,6 +231,16 @@ function Verify() {
       setStep("select-credential");
     }
   };
+
+  useEffect(() => {
+    const scannedData = (location.state as { scannedData?: string })
+      ?.scannedData;
+    if (scannedData) {
+      setBase64Input(scannedData);
+      navigate(location.pathname, { replace: true, state: {} });
+      handleDecode(scannedData);
+    }
+  }, []);
 
   const selectCredential = (
     credential: Credential,
@@ -360,7 +376,7 @@ function Verify() {
           {error && <p className={styles.error}>{error}</p>}
           <button
             className={styles.verifyButton}
-            onClick={handleDecode}
+            onClick={() => handleDecode()}
             disabled={!base64Input.trim()}
           >
             Decode & Verify
