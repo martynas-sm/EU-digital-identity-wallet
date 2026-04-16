@@ -13,6 +13,7 @@ import PidProviders from "./pages/PidProviders";
 import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
 import Protected from "./pages/Protected";
+import Scan from "./pages/Scan";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token"));
