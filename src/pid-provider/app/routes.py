@@ -34,7 +34,7 @@ def register_routes(app, db):
                 # Checks if the session has parameters to generate PID,
                 # if not, redirect to dashboard
                 if 'generate_state' in session:
-                    return redirect(url_for('main.generate_pid', **session['generate_state']))
+                    return redirect(url_for('main.create_pid', **session['generate_state']))
                 return redirect(url_for('main.dashboard'))
 
             # If not logged in, clear the session but keep generate_state to generate the PID
@@ -97,7 +97,7 @@ def register_routes(app, db):
                     # If it's a request to generate PID, redirects to generate PID
                     if 'generate_state' in session:
                         gen_state = session.get('generate_state')
-                        return redirect(url_for('main.generate_pid', **gen_state))
+                        return redirect(url_for('main.create_pid', **gen_state))
 
                     # Otherwise, redirects to dashboard
                     return redirect(url_for('main.dashboard'))
