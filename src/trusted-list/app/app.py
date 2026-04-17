@@ -23,13 +23,16 @@ PID_PROVIDER_LIST = [
     "request_pid_endpoint": "https://pid-provider.wallet.test/api/request-pid",
     "receive_pid_endpoint": "https://public.pid-provider.wallet.test/api/receive-pid",
     "public_key": {
-      "kty": "EC",
-      "kid": "JmY7_XfJNBSsduh50apiAI1I1J4pl6M4ajWXhT_expI",
-      "crv": "P-256",
-      "x": "eo8iaJOBnEHcsLaXCrfN6fyJPSw_pIne9JJExVyQLwU",
-      "y": "bdFUHwR102XktogHZNdIHhYFZMahf8m1eVS0RCtFo7c",
-      "alg": "ES256",
-      "use": "sig"
+        "alg": "ES256",
+        "crv": "P-256",
+        "ext": True,
+        "key_ops": [
+            "verify"
+        ],
+        "kty": "EC",
+        "x": "MoFr8EwN78CjCfeFnPVULkw6BVEVfrroAiRSD-jnWLU",
+        "y": "DWJ4SZW22VUYBgVVyXSQ5cgIbSQN3EhakRmf1kW95Aw",
+        "kid": "T/XuctRSz2wkrzY0rdzraRrgA9PaJqL104fgH34d5iE="
     }
   },
 ]
