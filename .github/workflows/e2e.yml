@@ -1,0 +1,62 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup /etc/hosts
+        run: |
+          echo "127.0.0.1 relying-party.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 public.relying-party.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 trusted-list.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 public.trusted-list.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 pid-provider.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 public.pid-provider.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 wallet-backend.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 public.wallet-backend.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 wallet-frontend.wallet.test" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 public.wallet-frontend.wallet.test" | sudo tee -a /etc/hosts
+
+      - name: Install root CA certificate
+        run: |
+          sudo cp src/certs/root-ca.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
+
+      - name: Build and start docker-compose
+        run: cd src && docker compose up -d --build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: src/e2e
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        working-directory: src/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: src/e2e
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: src/e2e/playwright-report/
+          retention-days: 30
