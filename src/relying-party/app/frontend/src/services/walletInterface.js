@@ -8,14 +8,16 @@ export async function requestAgeOver18(options = {}) {
 
 export async function requestCheckoutInfo(options = {}) {
     const data = await handleWalletRequest({
-        requested_claims: ["email_address", "resident_address"]
+        requested_claims: [],
+        optional_claims: ["email_address", "resident_address"]
     }, options);
     return { email: data["email_address"], address: data["resident_address"] };
 }
 
 export async function requestReviewClaims(options = {}) {
     const data = await handleWalletRequest({
-        requested_claims: ["given_name", "family_name", "nationality"]
+        requested_claims: ["given_name"],
+        optional_claims: ["family_name", "nationality"]
     }, options);
     return {
         first_name: data["given_name"],

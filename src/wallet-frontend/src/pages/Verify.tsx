@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 type VerificationRequest = {
   requested_claims: string[];
+  optional_claims?: string[];
   nonce: string;
   proof_endpoint: string;
   exp: number;
@@ -136,8 +137,11 @@ function Verify() {
   const [selectedCredential, setSelectedCredential] =
     useState<Credential | null>(null);
   const [matchedClaims, setMatchedClaims] = useState<
-    { name: string; label: string; value: string }[]
+    { name: string; label: string; value: string; isRequired: boolean }[]
   >([]);
+  const [checkedOptionalClaims, setCheckedOptionalClaims] = useState<
+    Record<string, boolean>
+  >({});
   const [isTrustedRelyingParty, setIsTrustedRelyingParty] = useState<
     boolean | null
   >(null);
@@ -175,6 +179,7 @@ function Verify() {
 
     if (
       !Array.isArray(parsed.requested_claims) ||
+      (parsed.optional_claims && !Array.isArray(parsed.optional_claims)) ||
       !parsed.nonce ||
       !parsed.proof_endpoint ||
       !parsed.exp
@@ -252,17 +257,40 @@ function Verify() {
     if (!rawSdJwt) return;
 
     const dMap = getDisclosureMap(rawSdJwt);
-    const claims = req.requested_claims
+    const requiredClaims = req.requested_claims
       .filter((claim) => dMap.has(claim))
       .map((claim) => ({
         name: claim,
         label: CLAIM_LABELS[claim] || claim,
         value: String(dMap.get(claim)!.value),
+        isRequired: true,
       }));
 
+    const optionalClaims = (req.optional_claims || [])
+      .filter((claim) => dMap.has(claim))
+      .map((claim) => ({
+        name: claim,
+        label: CLAIM_LABELS[claim] || claim,
+        value: String(dMap.get(claim)!.value),
+        isRequired: false,
+      }));
+
+    const initialCheckedOptionalClaims: Record<string, boolean> = {};
+    for (const claim of optionalClaims) {
+      initialCheckedOptionalClaims[claim.name] = true;
+    }
+
     setSelectedCredential(credential);
-    setMatchedClaims(claims);
+    setMatchedClaims([...requiredClaims, ...optionalClaims]);
+    setCheckedOptionalClaims(initialCheckedOptionalClaims);
     setStep("review");
+  };
+
+  const toggleOptionalClaim = (claimName: string) => {
+    setCheckedOptionalClaims((prev) => ({
+      ...prev,
+      [claimName]: !prev[claimName],
+    }));
   };
 
   const handleShare = async () => {
@@ -282,7 +310,14 @@ function Verify() {
       const issuerJwt = getIssuerJwt(rawSdJwt);
       const dMap = getDisclosureMap(rawSdJwt);
 
-      const selectedDisclosures = request.requested_claims
+      const claimsToShare = [
+        ...request.requested_claims,
+        ...(request.optional_claims || []).filter(
+          (claim) => checkedOptionalClaims[claim],
+        ),
+      ];
+
+      const selectedDisclosures = claimsToShare
         .map((claim) => dMap.get(claim)?.raw)
         .filter(Boolean);
 
@@ -357,6 +392,7 @@ function Verify() {
     setMatchingCredentials([]);
     setSelectedCredential(null);
     setMatchedClaims([]);
+    setCheckedOptionalClaims({});
     setIsTrustedRelyingParty(null);
     setRelyingPartyName(null);
   };
@@ -474,20 +510,43 @@ function Verify() {
             <div className={styles.claimHeader}>
               <span>{t("verify.claim")}</span>
               <span>{t("verify.value")}</span>
+              <span>Share</span>
             </div>
             {matchedClaims.map((claim) => (
-              <div
+              <label
                 key={claim.name}
-                className={`${styles.claimRow} ${styles.requested}`}
+                className={`${styles.claimRow} ${
+                  claim.isRequired || checkedOptionalClaims[claim.name]
+                    ? styles.requested
+                    : ""
+                }`}
               >
                 <span className={styles.attrName}>
                   {t(`claims.${claim.name}`, { defaultValue: claim.label })}
-                  <span className={styles.requiredBadge}>
-                    {t("verify.requested_badge")}
-                  </span>
+                  {claim.isRequired && (
+                    <span className={styles.requiredBadge}>
+                      {t("verify.requested_badge")}
+                    </span>
+                  )}
+                  {!claim.isRequired && (
+                    <span className={styles.optionalBadge}>optional</span>
+                  )}
                 </span>
                 <span className={styles.attrValue}>{claim.value}</span>
-              </div>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={
+                    claim.isRequired || (checkedOptionalClaims[claim.name] ?? false)
+                  }
+                  onChange={() => {
+                    if (!claim.isRequired) {
+                      toggleOptionalClaim(claim.name);
+                    }
+                  }}
+                  disabled={claim.isRequired}
+                />
+              </label>
             ))}
           </div>
 
@@ -496,7 +555,7 @@ function Verify() {
               {t("verify.decline")}
             </button>
             <button className={styles.shareButton} onClick={handleShare}>
-              {t("verify.share_claims", { count: matchedClaims.length })}
+              {t("verify.share_claims", { count: matchedClaims.filter(c => c.isRequired || checkedOptionalClaims[c.name]).length })}
             </button>
           </div>
         </div>
