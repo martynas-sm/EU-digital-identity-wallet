@@ -1,6 +1,7 @@
 .logo {
   height: 80px;
-  width: fit-content;
+  width: auto;
+  max-width: 100%;
 }
 
 .title {
@@ -11,6 +12,29 @@
 .login_box {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 10em;
+  align-items: flex-start;
+  min-height: calc(100vh - 56px);
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .login_box {
+    align-items: center;
+    padding: 2rem;
+  }
+}
+
+.qrCodeWrapper {
+  background: white;
+  padding: 16px;
+  width: 100%;
+  max-width: 332px;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.qrCodeWrapper svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }

@@ -1,4 +1,4 @@
-import { User, Sun, Moon } from "lucide-react";
+import { User, Sun, Moon, Menu } from "lucide-react";
 import styles from "./TopNavbar.module.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -100,7 +100,15 @@ function useSessionTimeout({
   return { showWarning, continueSession, logoutNow };
 }
 
-function TopNavbar({ setToken }: { setToken: (t: string | null) => void }) {
+function TopNavbar({
+  setToken,
+  onMenuClick,
+  sidebarOpen,
+}: {
+  setToken: (t: string | null) => void;
+  onMenuClick?: () => void;
+  sidebarOpen?: boolean;
+}) {
   const navigate = useNavigate();
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -162,12 +170,22 @@ function TopNavbar({ setToken }: { setToken: (t: string | null) => void }) {
 
       <header className={styles.topNavbar}>
         <div className={styles.logoContainer}>
+          {onMenuClick && (
+            <button
+              className={styles.menuButton}
+              aria-label={t("navbar.toggle_menu", { defaultValue: "Menu" })}
+              aria-expanded={sidebarOpen ? "true" : "false"}
+              onClick={onMenuClick}
+            >
+              <Menu size={22} />
+            </button>
+          )}
           <img
             src="/images/wallet-logo.png"
             alt="Wallet Logo"
             className={styles.logo}
           />
-          {t("navbar.app_name")}
+          <span className={styles.appName}>{t("navbar.app_name")}</span>
         </div>
         <div className={styles.navActions}>
           <button
