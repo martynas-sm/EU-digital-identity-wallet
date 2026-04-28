@@ -40,6 +40,12 @@ export function WalletRequestDialog() {
                             activeRequestRef.current = null;
                             setOpen(false);
                             resolve(data);
+                        } else if (pollRes.status === 400) {
+                            const data = await pollRes.json();
+                            clearInterval(interval);
+                            activeRequestRef.current = null;
+                            setOpen(false);
+                            reject(new Error(data.error_description));
                         } else if (pollRes.status === 404) {
                             clearInterval(interval);
                             activeRequestRef.current = null;
