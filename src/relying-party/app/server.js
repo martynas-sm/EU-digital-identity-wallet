@@ -152,6 +152,9 @@ app.get("/api/wallet/status/:nonce", (req, res) => {
     if (session.status === 'complete') {
         walletSessions.delete(req.params.nonce);
         res.status(200).json(session.data);
+    } else if (session.status === 'declined') {
+        walletSessions.delete(req.params.nonce);
+        res.status(400).json({ status: "declined", error: session.error, error_description: session.error_description });
     } else {
         res.status(202).json({ status: "pending" });
     }
@@ -165,6 +168,10 @@ app.options("/api/proof", (req, res) => {
 
 app.post("/api/proof", async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
+    if (req.body.error) {
+        walletSessions.set(req.body.nonce, { status: 'declined', error: req.body.error, error_description: req.body.error_description });
+        return res.status(200).json({ status: "declined" });
+    }
     const { proof } = req.body;
     if (!proof || typeof proof !== 'string') return res.status(400).json({ error: "Invalid proof format" });
 

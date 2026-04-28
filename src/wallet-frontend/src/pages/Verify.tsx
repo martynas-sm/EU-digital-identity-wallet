@@ -67,7 +67,7 @@ function getDisclosureMap(
       if (Array.isArray(parsed) && parsed.length >= 3) {
         map.set(parsed[1], { raw: d, salt: parsed[0], value: parsed[2] });
       }
-    } catch {}
+    } catch { }
   }
 
   return map;
@@ -329,7 +329,13 @@ function Verify() {
   };
 
   const handleDecline = async () => {
-    if (selectedCredential && request) {
+    if (!request) return;
+    await fetch(request.proof_endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nonce: request.nonce, error: "access_denied", error_description: "User declined" }),
+    });
+    if (selectedCredential) {
       await addTransaction({
         id: Date.now(),
         credentialType: selectedCredential.type,
