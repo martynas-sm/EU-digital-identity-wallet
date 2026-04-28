@@ -93,6 +93,7 @@
     "share_claims_other": "Share {{count}} claims",
     "claim": "Claim",
     "value": "Value",
+    "share": "Share",
     "requested_badge": "requested",
     "optional_badge": "optional",
     "submitting": "Submitting proof...",

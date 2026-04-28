@@ -510,7 +510,7 @@ function Verify() {
             <div className={styles.claimHeader}>
               <span>{t("verify.claim")}</span>
               <span>{t("verify.value")}</span>
-              <span>Share</span>
+              <span>{t("verify.share")}</span>
             </div>
             {matchedClaims.map((claim) => (
               <label

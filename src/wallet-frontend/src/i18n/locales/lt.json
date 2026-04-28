@@ -95,6 +95,7 @@
     "share_claims_other": "Dalintis {{count}} teiginių",
     "claim": "Teiginys",
     "value": "Reikšmė",
+    "share": "Dalintis",
     "requested_badge": "prašoma",
     "optional_badge": "neprivaloma",
     "submitting": "Teikiamas įrodymas...",
