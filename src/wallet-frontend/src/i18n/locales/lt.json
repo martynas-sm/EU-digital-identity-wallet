@@ -96,6 +96,7 @@
     "claim": "Teiginys",
     "value": "Reikšmė",
     "requested_badge": "prašoma",
+    "optional_badge": "neprivaloma",
     "submitting": "Teikiamas įrodymas...",
     "success_title": "Įrodymas sėkmingai pasidalintas",
     "success_text": "Prašomi teiginiai buvo pasidalinti su {{hostname}}.",

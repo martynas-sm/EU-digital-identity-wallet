@@ -529,7 +529,7 @@ function Verify() {
                     </span>
                   )}
                   {!claim.isRequired && (
-                    <span className={styles.optionalBadge}>optional</span>
+                    <span className={styles.optionalBadge}>{t("verify.optional_badge")}</span>
                   )}
                 </span>
                 <span className={styles.attrValue}>{claim.value}</span>

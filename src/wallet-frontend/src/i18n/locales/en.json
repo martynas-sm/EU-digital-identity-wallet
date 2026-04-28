@@ -94,6 +94,7 @@
     "claim": "Claim",
     "value": "Value",
     "requested_badge": "requested",
+    "optional_badge": "optional",
     "submitting": "Submitting proof...",
     "success_title": "Proof Shared Successfully",
     "success_text": "The requested claims were shared with {{hostname}}.",
