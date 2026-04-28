@@ -554,7 +554,11 @@ function Verify() {
             <button className={styles.cancelButton} onClick={handleDecline}>
               {t("verify.decline")}
             </button>
-            <button className={styles.shareButton} onClick={handleShare}>
+            <button
+              className={styles.shareButton}
+              onClick={handleShare}
+              disabled={matchedClaims.filter(c => c.isRequired || checkedOptionalClaims[c.name]).length === 0}
+            >
               {t("verify.share_claims", { count: matchedClaims.filter(c => c.isRequired || checkedOptionalClaims[c.name]).length })}
             </button>
           </div>
@@ -582,7 +586,9 @@ function Verify() {
             })}
           </p>
           <ul className={styles.sharedList}>
-            {matchedClaims.map((claim) => (
+            {matchedClaims
+              .filter(claim => claim.isRequired || checkedOptionalClaims[claim.name])
+              .map((claim) => (
               <li key={claim.name} className={styles.sharedItem}>
                 <span className={styles.sharedLabel}>
                   {t(`claims.${claim.name}`, { defaultValue: claim.label })}
