@@ -369,7 +369,7 @@
 
 .claimHeader {
   display: none;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 60px;
   padding: 0.6rem 1.25rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -387,21 +387,33 @@
 
 .claimRow {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 40px;
   gap: 0.4rem 1rem;
   padding: 0.7rem 1.25rem;
   align-items: center;
   border-bottom: 1px solid var(--tertiary);
+  cursor: pointer;
 }
 
 @media (min-width: 640px) {
   .claimRow {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 60px;
   }
 }
 
 .claimRow:last-child {
   border-bottom: none;
+}
+
+.optionalBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background-color: var(--tertiary);
+  color: var(--light-2);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
 }
 
 .claimRow.requested {
