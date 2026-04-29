@@ -197,3 +197,81 @@ GET /api/relying-party?name=Example%20Relying%20Party
 |-----------|------|-------------|
 | name | string | The name of the relying party (URL-encoded) |
 | proof_endpoint | string | The endpoint relying party uses to accept proof (URL-encoded) |
+
+
+### GET /api/trusted-list/certificate-authority
+
+Returns the full list of trusted certificate authorities. Clients can optionally request a subset of fields using the `fields` query parameter.
+
+#### Query Parameters
+
+| Parameter | Type   | Description                                                                                     |
+| --------- | ------ | ----------------------------------------------------------------------------------------------- |
+| fields    | string | Comma-separated list of fields to include in the response. If omitted, all fields are returned. |
+
+#### Example Request
+
+```http
+GET /api/trusted-list/certificate-authority?fields=name,public_key,issue_endpoint
+```
+
+#### Example Response (200 OK)
+
+```json
+[
+  {
+    "name": "Example CA",
+    "issue_endpoint": "https://wallet-ca/api/issue-certificate",
+    "public_key": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "abc123...",
+      "y": "def456...",
+      "alg": "ES256",
+      "use": "sig"
+    }
+  }
+]
+```
+
+#### Fields
+
+| Field             | Type   | Description                                                      |
+| ----------------- | ------ | ---------------------------------------------------------------- |
+| name              | string | Human-readable certificate authority name                        |
+| issue_endpoint    | string | Endpoint used to initiate certificate issuance (redirect target) |
+| public_key        | object | Public key of the CA (JWK format). Used for verifying signatures |
+
+### GET /api/certificate-authority
+
+Returns metadata for a specific certificate authority or `404 Not Found` if unknown. One and only one parameter must be provided.
+
+#### Query Parameters
+
+| Parameter      | Type   | Description                                 |
+| -------------- | ------ | ------------------------------------------- |
+| name           | string | Certificate authority name (URL-encoded)    |
+| issue_endpoint | string | Certificate issuance endpoint (URL-encoded) |
+
+#### Example Request
+
+```
+GET /api/certificate-authority?name=Example%20CA
+```
+
+#### Example Response (200 OK)
+
+```json
+{
+  "name": "Example CA",
+  "issue_endpoint": "https://wallet-ca/api/issue-certificate",
+  "public_key": {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "abc123...",
+    "y": "def456...",
+    "alg": "ES256",
+    "use": "sig"
+  }
+}
+```
