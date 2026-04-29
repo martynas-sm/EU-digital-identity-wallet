@@ -12,7 +12,8 @@ The relying party sends a request to the wallet specifying which claims must be 
 
 ```json
 {
-    "requested_claims": [ "birthdate" ],
+    "requested_claims": [ "given_name" ],
+    "optional_claims": [ "birthdate" ],
     "nonce": "3f1e4c2d5a6b7890123456789abcdef0123456789abcdef0123456789abcdef",
     "proof_endpoint": "https://relying-party.example.com/proof",
     "exp": 1715000000
@@ -23,7 +24,7 @@ The relying party sends a request to the wallet specifying which claims must be 
 User scans the QR code or copy/pastes the request, then wallet checks if it possess an SD-JWT containing the requested claims and that the request has not expired. Additionally, checks if the relying party is in the Trusted List and gives a warning if not.
 
 ### 3. Wallet selects claims
-From the SD-JWT disclosures, the wallet selects the claims required to satisfy the relying party’s request.
+From the SD-JWT disclosures, the wallet selects the claims required to satisfy the relying party's request. The user can additionally select to disclose any of the requested `optional_claims`.
 
 ### 4. Wallet constructs proof presentation
 **Construction logic:**
