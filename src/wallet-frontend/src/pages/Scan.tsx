@@ -4,30 +4,12 @@ import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { QrCode, Camera, Loader2 } from "lucide-react";
 import styles from "../components/ScanPage/Scan.module.css";
 import { useTranslation } from "react-i18next";
+import {
+  createPidIssuanceMaterial,
+  storePidIssuanceContext,
+} from "@/lib/pidIssuance";
 
 type ScanState = "prompt" | "scanning" | "denied" | "error" | "issuing-pid";
-
-function generatePasskey(length: number): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return Array.from(array, (b) => chars[b % chars.length]).join("");
-}
-
-async function generateKeyPair(): Promise<{
-  publicJwk: JsonWebKey;
-  privateJwk: JsonWebKey;
-}> {
-  const keyPair = await crypto.subtle.generateKey(
-    { name: "ECDSA", namedCurve: "P-256" },
-    true,
-    ["sign", "verify"],
-  );
-  const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
-  const privateJwk = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
-  return { publicJwk, privateJwk };
-}
 
 function isCredentialOffer(text: string): boolean {
   return text.trim().toLowerCase().startsWith("openid-credential-offer://");
@@ -109,14 +91,8 @@ function Scan() {
         throw new Error(t("scan.err_invalid_metadata"));
       }
 
-      const passkey = generatePasskey(64);
-      const { publicJwk, privateJwk } = await generateKeyPair();
-      const minimalPubKey = {
-        crv: publicJwk.crv,
-        kty: publicJwk.kty,
-        x: publicJwk.x,
-        y: publicJwk.y,
-      };
+      const { passkey, privateJwk, minimalPubKey } =
+        await createPidIssuanceMaterial();
 
       const issueResp = await fetch(credentialEndpoint, {
         method: "POST",
@@ -138,10 +114,12 @@ function Scan() {
       const providerDomain = issuerHost.replace(/^public\./, "");
       const receiveEndpoint = `${credentialIssuer.replace(/\/$/, "")}/api/receive-pid`;
 
-      sessionStorage.setItem("pid_passkey", passkey);
-      sessionStorage.setItem("pid_private_key", JSON.stringify(privateJwk));
-      sessionStorage.setItem("pid_provider_domain", providerDomain);
-      sessionStorage.setItem("pid_receive_endpoint", receiveEndpoint);
+      storePidIssuanceContext({
+        passkey,
+        privateJwk,
+        providerDomain,
+        receiveEndpoint,
+      });
 
       navigate("/pid-callback");
     } catch (err) {
