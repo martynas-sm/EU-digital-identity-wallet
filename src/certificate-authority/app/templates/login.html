@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="lt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisijungti</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+</head>
+
+<body>
+    <h2 class="header">WalletBy liudijimų įstaiga</h2>
+    <div class="login-container">
+        <h3>Prisijungimas</h3>
+        <form method="POST" action="/login">
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+            <label for="username">Naudotojo vardas</label>
+            <input type="text" id="username" name="username" placeholder="test123" required>
+            <label for="password">Slaptažodis</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Prisijungti</button>
+        </form>
+    </div>
+</body>
+
+</html>
