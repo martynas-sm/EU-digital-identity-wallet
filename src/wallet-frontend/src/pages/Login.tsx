@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { initData } from "@/data/wallet_data";
 import { SHA256 } from "crypto-js";
@@ -170,21 +169,23 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
         </CardContent>
       </Card>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t("common.error")}</DialogTitle>
-              <DialogDescription>
-                {t("login.error_description")}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="sm:justify-center">
-              <DialogClose asChild>
-                <Button type="button">{t("common.close")}</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </DialogTrigger>
+        <DialogContent
+          showCloseButton={false}
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>{t("common.error")}</DialogTitle>
+            <DialogDescription>
+              {t("login.error_description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <DialogClose asChild>
+              <Button type="button">{t("common.close")}</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
