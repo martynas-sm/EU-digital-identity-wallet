@@ -67,7 +67,7 @@ spec:
               value: "Frontend service"
           command: ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/cloud-run-nginx.conf"]
         - name: pid-db
-          image: postgres:16-alpine
+          image: public.ecr.aws/docker/library/postgres:16-alpine
           env:
             - name: POSTGRES_USER
               value: "postgres"
