@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Building2, ChevronRight } from "lucide-react";
 import styles from "../components/PidProvidersPage/PidProviders.module.css";
 import { useTranslation } from "react-i18next";
-import { getDomainSuffix } from "../utils/domain";
 
 type PidProvider = {
   domain: string;
@@ -43,7 +42,7 @@ function PidProviders() {
     async function fetchProviders() {
       try {
         const response = await fetch(
-          `https://public.trusted-list.${getDomainSuffix()}/api/trusted-list/pid-provider?fields=domain,name,request_pid_endpoint,receive_pid_endpoint`,
+          "https://public.trusted-list.wallet.test/api/trusted-list/pid-provider?fields=domain,name,request_pid_endpoint,receive_pid_endpoint",
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch providers: ${response.status}`);

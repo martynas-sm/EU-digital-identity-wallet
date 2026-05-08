@@ -19,7 +19,7 @@ def generate_p12_cert():
             x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, "Test"),
             x509.NameAttribute(NameOID.LOCALITY_NAME, "Test City"),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Wallet Test"),
-            x509.NameAttribute(NameOID.COMMON_NAME, os.getenv("DOMAIN_SUFFIX", "wallet.test")),
+            x509.NameAttribute(NameOID.COMMON_NAME, "wallet.test"),
         ]
     )
     cert = (

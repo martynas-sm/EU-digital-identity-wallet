@@ -1,7 +1,6 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { TOTP } from 'totp-generator';
 
-const DOMAIN_SUFFIX = process.env.DOMAIN_SUFFIX || 'wallet.test';
 const USERNAME = `e2euser${Date.now().toString(36)}`;
 const PASSWORD = 'testpass';
 
@@ -20,13 +19,13 @@ test.describe.serial('Wallet E2E', () => {
   });
 
   test('Register and login', async () => {
-    await walletPage.goto(`https://wallet-frontend.${DOMAIN_SUFFIX}/register`);
+    await walletPage.goto('https://wallet-frontend.wallet.test/register');
     await walletPage.fill('#username', USERNAME);
     await walletPage.fill('#password', PASSWORD);
     await walletPage.click('button[type="submit"]');
     await walletPage.waitForURL(url => !url.pathname.startsWith('/register'));
 
-    await walletPage.goto(`https://wallet-frontend.${DOMAIN_SUFFIX}/login`);
+    await walletPage.goto('https://wallet-frontend.wallet.test/login');
     await walletPage.fill('#username', USERNAME);
     await walletPage.fill('#password', PASSWORD);
     await walletPage.click('button[type="submit"]');
@@ -34,7 +33,7 @@ test.describe.serial('Wallet E2E', () => {
   });
 
   test('Add PID credential from PID provider', async () => {
-    await walletPage.goto(`https://wallet-frontend.${DOMAIN_SUFFIX}/pid-providers`);
+    await walletPage.goto('https://wallet-frontend.wallet.test/pid-providers');
     await walletPage.locator('[role="button"]').first().click();
     await walletPage.waitForURL(/.*pid-provider.*/);
 
@@ -55,7 +54,7 @@ test.describe.serial('Wallet E2E', () => {
 
   test('Use wallet in Relying Party to leave a review', async () => {
     const rpPage = await ctx.newPage();
-    await rpPage.goto(`https://relying-party.${DOMAIN_SUFFIX}/product/2`);
+    await rpPage.goto('https://relying-party.wallet.test/product/2');
 
     await rpPage.click('text="Write a review"');
     await rpPage.fill('textarea[placeholder="Share your thoughts about this hot sauce..."]', 'E2E test review');
@@ -65,7 +64,7 @@ test.describe.serial('Wallet E2E', () => {
     await expect(pre).toBeVisible({ timeout: 15000 });
     const requestBase64 = await pre.textContent();
 
-    await walletPage.goto(`https://wallet-frontend.${DOMAIN_SUFFIX}/verify`);
+    await walletPage.goto('https://wallet-frontend.wallet.test/verify');
     await walletPage.fill('#base64-input', requestBase64!.trim());
     await walletPage.click('button:has-text("Verify")');
 

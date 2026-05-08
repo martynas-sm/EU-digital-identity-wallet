@@ -3,12 +3,10 @@ from quart import Quart, Blueprint, jsonify, request, abort
 from quart_cors import cors
 from werkzeug.exceptions import HTTPException
 import logging
-import os
 logger = logging.getLogger(__name__)
 
-DOMAIN_SUFFIX = os.getenv("DOMAIN_SUFFIX", "wallet.test")
-FIRST_DOMAIN = f'trusted-list.{DOMAIN_SUFFIX}'
-SECOND_DOMAIN = f'public.trusted-list.{DOMAIN_SUFFIX}'
+FIRST_DOMAIN = 'trusted-list.wallet.test'
+SECOND_DOMAIN = 'public.trusted-list.wallet.test'
 
 app = Quart(__name__, host_matching=True, static_host=FIRST_DOMAIN)
 
@@ -20,10 +18,10 @@ cors(public, allow_origin="*")
 
 PID_PROVIDER_LIST = [
   {
-    "domain": DOMAIN_SUFFIX,
+    "domain": "wallet.test",
     "name": "Example Provider",
-    "request_pid_endpoint": f"https://pid-provider.{DOMAIN_SUFFIX}/api/request-pid",
-    "receive_pid_endpoint": f"https://public.pid-provider.{DOMAIN_SUFFIX}/api/receive-pid",
+    "request_pid_endpoint": "https://pid-provider.wallet.test/api/request-pid",
+    "receive_pid_endpoint": "https://public.pid-provider.wallet.test/api/receive-pid",
     "public_key": {
         "alg": "ES256",
         "crv": "P-256",
@@ -42,7 +40,7 @@ PID_PROVIDER_LIST = [
 RELYING_PARTY_LIST = [
   {
     "name": "Hot Sauce",
-    "proof_endpoint": f"https://public.relying-party.{DOMAIN_SUFFIX}/api/proof",
+    "proof_endpoint": "https://public.relying-party.wallet.test/api/proof",
   },
 ]
 

@@ -69,7 +69,13 @@ docker compose up
 
 ## Cloud Run Deployment
 
-For deploying to Google Cloud Run, a multi-container `cloud-run-service.yaml` specification is provided. Ensure you have the `DOMAIN_SUFFIX` environment variable set correctly on the service. The service uses a sidecar pattern to deploy all components and the Nginx proxy behind a single Cloud Run URL.
+For deploying to Google Cloud Run, a multi-container `cloud-run-service.yaml` specification is provided. The service uses a sidecar pattern to deploy all components and an Nginx proxy behind the single default Cloud Run URL.
+
+Nginx will intercept requests to sub-paths (e.g. `/proxy/wallet-backend`) and transparently rewrite the requests to the internal sidecars while spoofing `.wallet.test` Host headers. It also dynamically modifies browser-side Javascript to adjust URLs on-the-fly, so absolutely no codebase changes were needed.
+
+1. Ensure images are pushed to a registry accessible by Cloud Run.
+2. Create Secret Manager secrets for `pg-password` and `pid-provider-secret-key`.
+3. Deploy:
 
 ```
 gcloud run services replace cloud-run-service.yaml

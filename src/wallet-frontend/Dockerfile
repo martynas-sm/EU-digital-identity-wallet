@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM public.ecr.aws/docker/library/node:23-alpine AS build
+FROM node:25-alpine AS build
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ RUN npm run build
 
 
 # ---- Production stage ----
-FROM public.ecr.aws/docker/library/nginx:alpine
+FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY cloud-run-nginx.conf /etc/nginx/cloud-run-nginx.conf

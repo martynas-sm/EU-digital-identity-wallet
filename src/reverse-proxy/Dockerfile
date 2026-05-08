@@ -1,7 +1,5 @@
-FROM public.ecr.aws/docker/library/nginx:alpine
+FROM nginx:alpine
 
-COPY dns.conf.template /etc/nginx/conf.d/
-COPY cloud-run-nginx.conf.template /etc/nginx/conf.d/
-COPY docker-entrypoint.sh /
+COPY dns.conf /etc/nginx/conf.d/
+COPY cloud-run-nginx.conf /etc/nginx/conf.d/cloud-run-nginx.conf
 COPY cloud-run-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -17,16 +17,11 @@ spec:
           command: ["/cloud-run-entrypoint.sh"]
           ports:
             - containerPort: 8080
-          env:
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
         - name: relying-party
           image: cpu64/relying-party:latest
           env:
             - name: SERVICE_NAME
               value: "The relying party service"
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
             - name: PORT
               value: "8001"
         - name: trusted-list
@@ -35,8 +30,6 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "List of trusted providers service"
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
         - name: pid-provider
           image: cpu64/pid-provider:latest
           command: ["sh", "-c", "python /app/keys/generate.py && update-ca-certificates && hypercorn app:app --bind 127.0.0.1:8003"]
@@ -50,8 +43,8 @@ spec:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: "latest"
-                  name: "pg-password"
+                  name: pg-password
+                  key: latest
             - name: PGDATABASE
               value: "piddb"
             - name: PGPORT
@@ -59,35 +52,29 @@ spec:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  key: "latest"
-                  name: "pid-provider-secret-key"
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
+                  name: pid-provider-secret-key
+                  key: latest
         - name: wallet-backend
           image: cpu64/wallet-backend:latest
           command: ["sh", "-c", "uv run python -m hypercorn app.app:app --bind 127.0.0.1:8004"]
           env:
             - name: SERVICE_NAME
               value: "Backend service"
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
         - name: wallet-frontend
           image: cpu64/wallet-frontend:latest
           env:
             - name: SERVICE_NAME
               value: "Frontend service"
-            - name: DOMAIN_SUFFIX
-              value: "YOUR_CUSTOM_DOMAIN.com"
           command: ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/cloud-run-nginx.conf"]
         - name: pid-db
-          image: public.ecr.aws/docker/library/postgres:16-alpine
+          image: postgres:16-alpine
           env:
             - name: POSTGRES_USER
               value: "postgres"
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: "latest"
-                  name: "pg-password"
+                  name: pg-password
+                  key: latest
             - name: POSTGRES_DB
               value: "piddb"

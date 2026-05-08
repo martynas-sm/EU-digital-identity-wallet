@@ -15,9 +15,8 @@ PGPORT = os.getenv('PGPORT')
 PGDATABASE = os.getenv('PGDATABASE')
 DB_URL = f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE}"
 
-DOMAIN_SUFFIX = os.getenv("DOMAIN_SUFFIX", "wallet.test")
-MAIN_DOMAIN = f'pid-provider.{DOMAIN_SUFFIX}'
-PUBLIC_DOMAIN = f'public.pid-provider.{DOMAIN_SUFFIX}'
+MAIN_DOMAIN = 'pid-provider.wallet.test'
+PUBLIC_DOMAIN = 'public.pid-provider.wallet.test'
 
 app = Quart(__name__, host_matching=True, static_host=MAIN_DOMAIN)
 app.secret_key = os.environ.get("SECRET_KEY")

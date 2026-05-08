@@ -6,7 +6,6 @@ services:
     environment:
       SERVICE_NAME: "The relying party service"
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/root-ca.crt"
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     expose:
       - "8000"
     networks:
@@ -20,7 +19,6 @@ services:
     container_name: trusted-list
     environment:
       SERVICE_NAME: "List of trusted providers service"
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     expose:
       - "8000"
     networks:
@@ -43,7 +41,6 @@ services:
       PGDATABASE: piddb
       PGPORT: "5432"
       SECRET_KEY: Paslaptingasis_Raktas!!
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     expose:
       - "8000"
     networks:
@@ -53,7 +50,7 @@ services:
       - ./pid-provider/app/keys:/app/keys
 
   pid-db:
-    image: public.ecr.aws/docker/library/postgres:16-alpine
+    image: postgres:18-alpine
     container_name: pid-db
     environment:
       POSTGRES_USER: postgres
@@ -75,7 +72,6 @@ services:
     container_name: wallet-backend
     environment:
       SERVICE_NAME: "Backend service"
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     expose:
       - "8000"
     networks:
@@ -90,7 +86,6 @@ services:
     container_name: wallet-frontend
     environment:
       SERVICE_NAME: "Frontend service"
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     expose:
       - "8000"
     networks:
@@ -100,8 +95,6 @@ services:
     build: ./reverse-proxy
     image: cpu64/reverse-proxy:latest
     container_name: reverse-proxy
-    environment:
-      DOMAIN_SUFFIX: ${DOMAIN_SUFFIX:-wallet.test}
     ports:
       - "80:80"
       - "443:443"
@@ -114,16 +107,16 @@ services:
     networks:
       wallet-net:
         aliases:
-          - relying-party.${DOMAIN_SUFFIX:-wallet.test}
-          - public.relying-party.${DOMAIN_SUFFIX:-wallet.test}
-          - trusted-list.${DOMAIN_SUFFIX:-wallet.test}
-          - public.trusted-list.${DOMAIN_SUFFIX:-wallet.test}
-          - pid-provider.${DOMAIN_SUFFIX:-wallet.test}
-          - public.pid-provider.${DOMAIN_SUFFIX:-wallet.test}
-          - wallet-backend.${DOMAIN_SUFFIX:-wallet.test}
-          - public.wallet-backend.${DOMAIN_SUFFIX:-wallet.test}
-          - wallet-frontend.${DOMAIN_SUFFIX:-wallet.test}
-          - public.wallet-frontend.${DOMAIN_SUFFIX:-wallet.test}
+          - relying-party.wallet.test
+          - public.relying-party.wallet.test
+          - trusted-list.wallet.test
+          - public.trusted-list.wallet.test
+          - pid-provider.wallet.test
+          - public.pid-provider.wallet.test
+          - wallet-backend.wallet.test
+          - public.wallet-backend.wallet.test
+          - wallet-frontend.wallet.test
+          - public.wallet-frontend.wallet.test
     volumes:
       - ./certs/wildcard.test.crt:/etc/nginx/certs/wildcard.test.crt:ro
       - ./certs/wildcard.test.key:/etc/nginx/certs/wildcard.test.key:ro
