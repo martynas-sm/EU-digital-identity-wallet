@@ -41,19 +41,13 @@ spec:
             - name: PGUSER
               value: "postgres"
             - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: pg-password
-                  key: latest
+              value: "password"
             - name: PGDATABASE
               value: "piddb"
             - name: PGPORT
               value: "5432"
             - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: pid-provider-secret-key
-                  key: latest
+              value: "Paslaptingasis_Raktas!!"
         - name: wallet-backend
           image: cpu64/wallet-backend:latest
           command: ["sh", "-c", "uv run python -m hypercorn app.app:app --bind 127.0.0.1:8004"]
@@ -67,14 +61,11 @@ spec:
               value: "Frontend service"
           command: ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/cloud-run-nginx.conf"]
         - name: pid-db
-          image: public.ecr.aws/docker/library/postgres:16-alpine
+          image: postgres:16-alpine
           env:
             - name: POSTGRES_USER
               value: "postgres"
             - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: pg-password
-                  key: latest
+              value: "password"
             - name: POSTGRES_DB
               value: "piddb"

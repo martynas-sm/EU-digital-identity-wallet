@@ -73,10 +73,10 @@ For deploying to Google Cloud Run, a multi-container `cloud-run-service.yaml` sp
 
 Nginx will intercept requests to sub-paths (e.g. `/proxy/wallet-backend`) and transparently rewrite the requests to the internal sidecars while spoofing `.wallet.test` Host headers. It also dynamically modifies browser-side Javascript to adjust URLs on-the-fly, so absolutely no codebase changes were needed.
 
-1. Ensure images are pushed to a registry accessible by Cloud Run.
-2. Create Secret Manager secrets for `pg-password` and `pid-provider-secret-key`.
-3. Deploy:
+1. Build and push your Docker images to a registry accessible by Cloud Run (e.g. Google Artifact Registry).
+2. Update the `image` fields in `cloud-run-service.yaml` to point to your deployed images instead of `cpu64/*:latest`.
+3. Deploy the service to Cloud Run:
 
-```
-gcloud run services replace cloud-run-service.yaml
+```bash
+gcloud run services replace cloud-run-service.yaml --region us-central1
 ```
