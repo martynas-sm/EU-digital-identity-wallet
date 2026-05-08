@@ -1,14 +1,14 @@
 # Redirect HTTP -> HTTPS for all domains
 server {
     listen 80;
-    server_name relying-party.wallet.test trusted-list.wallet.test pid-provider.wallet.test wallet-backend.wallet.test wallet-frontend.wallet.test;
+    server_name relying-party.${DOMAIN_SUFFIX} trusted-list.${DOMAIN_SUFFIX} pid-provider.${DOMAIN_SUFFIX} wallet-backend.${DOMAIN_SUFFIX} wallet-frontend.${DOMAIN_SUFFIX};
 
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name relying-party.wallet.test *.relying-party.wallet.test;
+    server_name relying-party.${DOMAIN_SUFFIX} *.relying-party.${DOMAIN_SUFFIX};
 
     ssl_certificate /etc/nginx/certs/wildcard.test.crt;
     ssl_certificate_key /etc/nginx/certs/wildcard.test.key;
@@ -25,7 +25,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name trusted-list.wallet.test *.trusted-list.wallet.test;
+    server_name trusted-list.${DOMAIN_SUFFIX} *.trusted-list.${DOMAIN_SUFFIX};
 
     ssl_certificate /etc/nginx/certs/wildcard.test.crt;
     ssl_certificate_key /etc/nginx/certs/wildcard.test.key;
@@ -42,7 +42,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name pid-provider.wallet.test *.pid-provider.wallet.test;
+    server_name pid-provider.${DOMAIN_SUFFIX} *.pid-provider.${DOMAIN_SUFFIX};
 
     ssl_certificate /etc/nginx/certs/wildcard.test.crt;
     ssl_certificate_key /etc/nginx/certs/wildcard.test.key;
@@ -59,7 +59,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name wallet-backend.wallet.test *.wallet-backend.wallet.test;
+    server_name wallet-backend.${DOMAIN_SUFFIX} *.wallet-backend.${DOMAIN_SUFFIX};
 
     client_max_body_size 50M;
 
@@ -78,7 +78,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name wallet-frontend.wallet.test *.wallet-frontend.wallet.test;
+    server_name wallet-frontend.${DOMAIN_SUFFIX} *.wallet-frontend.${DOMAIN_SUFFIX};
 
     client_max_body_size 50M;
 

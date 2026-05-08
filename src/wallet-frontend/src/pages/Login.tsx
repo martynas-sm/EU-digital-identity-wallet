@@ -24,6 +24,7 @@ import { initData } from "@/data/wallet_data";
 import { SHA256 } from "crypto-js";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
+import { getDomainSuffix } from "../utils/domain";
 
 type LoginResponse = { token: string } | { error: string };
 
@@ -47,7 +48,7 @@ function LoginUser({ setToken }: { setToken: (t: string) => void }) {
       };
 
       const response = await fetch(
-        "https://wallet-backend.wallet.test/api/login",
+        `https://wallet-backend.${getDomainSuffix()}/api/login`,
         {
           method: "POST",
           body: JSON.stringify(request),

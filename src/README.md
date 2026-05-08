@@ -66,3 +66,11 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 docker compose up
 ```
+
+## Cloud Run Deployment
+
+For deploying to Google Cloud Run, a multi-container `cloud-run-service.yaml` specification is provided. Ensure you have the `DOMAIN_SUFFIX` environment variable set correctly on the service. The service uses a sidecar pattern to deploy all components and the Nginx proxy behind a single Cloud Run URL.
+
+```
+gcloud run services replace cloud-run-service.yaml
+```

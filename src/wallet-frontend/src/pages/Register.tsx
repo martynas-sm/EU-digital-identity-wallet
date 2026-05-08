@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import QRCode from "react-qr-code";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";
+import { getDomainSuffix } from "../utils/domain";
 
 type RegistrationResponse = { success: boolean; status: string };
 
@@ -62,7 +63,7 @@ function RegisterUser() {
       };
 
       const response = await fetch(
-        "https://wallet-backend.wallet.test/api/register",
+        `https://wallet-backend.${getDomainSuffix()}/api/register`,
         {
           method: "POST",
           body: JSON.stringify(request),

@@ -5,6 +5,7 @@ import { Download, FileUp, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
+import { getDomainSuffix } from "../utils/domain";
 
 function SignDocument() {
   const [file, setFile] = useState<File | null>(null);
@@ -38,7 +39,7 @@ function SignDocument() {
 
     try {
       const response = await fetch(
-        "https://wallet-backend.wallet.test/api/sign",
+        `https://wallet-backend.${getDomainSuffix()}/api/sign`,
         {
           method: "POST",
           body: form,

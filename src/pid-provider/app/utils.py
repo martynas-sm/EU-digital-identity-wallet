@@ -1,6 +1,7 @@
 import time
 import asyncio
 import hashlib
+import os
 import urllib.parse
 from jwcrypto import jwk
 from sd_jwt.issuer import SDJWTIssuer
@@ -67,7 +68,7 @@ async def generate_pid(db, app, pan: str, pub_key, passkey: str):
         SDObj("email_address"): record["email_address"],
         "issuing_authority": "Nacionalinis Gyventojų Registras",
         "issuing_country": "LT",
-        "iss": "https://pid-provider.wallet.test",
+        "iss": f"https://pid-provider.{os.getenv('DOMAIN_SUFFIX', 'wallet.test')}",
         "iat": int(time.time()),
         "exp": int(time.time()) + (60*60*24*120),
         "cnf": {"jwk": parsed_pub_key.export_public(as_dict=True)}

@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/wallet": {
-        target: "https://wallet-backend.wallet.test",
+        target: `https://wallet-backend.${process.env.DOMAIN_SUFFIX || 'wallet.test'}`,
         changeOrigin: true,
         secure: false,
       },

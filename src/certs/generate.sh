@@ -8,6 +8,10 @@ WILDCARD_CRT="wildcard.test.crt"
 WILDCARD_CSR="wildcard.test.csr"
 ROOT_CA_CNF="root-ca.cnf"
 WILDCARD_CNF="wildcard.test.cnf"
+DOMAIN_SUFFIX=${DOMAIN_SUFFIX:-wallet.test}
+
+echo "Generating config from template..."
+sed "s/\${DOMAIN_SUFFIX}/${DOMAIN_SUFFIX}/g" wildcard.test.cnf.template > wildcard.test.cnf
 
 echo "Generating root CA key..."
 openssl genrsa -out $ROOT_CA_KEY 4096
@@ -23,6 +27,6 @@ echo "Signing wildcard certificate with root CA..."
 openssl x509 -req -in $WILDCARD_CSR -CA $ROOT_CA_CRT -CAkey $ROOT_CA_KEY -CAcreateserial -out $WILDCARD_CRT -days 825 -sha256 -extensions v3_req -extfile $WILDCARD_CNF
 
 echo "Deleting sensitive/unnecessary files..."
-rm -f $ROOT_CA_KEY $ROOT_CA_SRL $WILDCARD_CSR
+rm -f $ROOT_CA_KEY $ROOT_CA_SRL $WILDCARD_CSR $WILDCARD_CNF
 
 echo "Certificate generation completed successfully!"

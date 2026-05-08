@@ -4,6 +4,7 @@ import { getData, addTransaction, type Credential } from "@/data/wallet_data";
 import styles from "../components/VerifyPage/Verify.module.css";
 import { ShieldCheck, Loader2, Info, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { getDomainSuffix } from "../utils/domain";
 
 type VerificationRequest = {
   requested_claims: string[];
@@ -203,7 +204,7 @@ function Verify() {
     let trusted = false;
     let rpName = "";
     try {
-      const url = `https://public.trusted-list.wallet.test/api/relying-party?proof_endpoint=${encodeURIComponent(parsed.proof_endpoint)}`;
+      const url = `https://public.trusted-list.${getDomainSuffix()}/api/relying-party?proof_endpoint=${encodeURIComponent(parsed.proof_endpoint)}`;
       const resp = await fetch(url);
       if (resp.ok) {
         const data = await resp.json();

@@ -21,9 +21,10 @@ app = Quart(__name__)
 app.config["QUART_AUTH_MODE"] = "bearer"
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 app.secret_key = secrets.token_urlsafe(16)
+DOMAIN_SUFFIX = os.getenv("DOMAIN_SUFFIX", "wallet.test")
 app = cors(
     app,
-    allow_origin=["https://wallet-frontend.wallet.test"],
+    allow_origin=[f"https://wallet-frontend.{DOMAIN_SUFFIX}"],
     allow_methods=["POST", "OPTIONS", "GET"],
     allow_headers=["Content-Type", "Authorization"],
 )

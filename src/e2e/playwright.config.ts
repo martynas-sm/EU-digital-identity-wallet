@@ -9,7 +9,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL: 'https://wallet-frontend.wallet.test',
+    baseURL: `https://wallet-frontend.${process.env.DOMAIN_SUFFIX || 'wallet.test'}`,
     trace: 'on-first-retry',
     ignoreHTTPSErrors: true,
   },

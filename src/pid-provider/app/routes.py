@@ -6,11 +6,13 @@ import urllib.parse
 import pyotp
 import secrets
 import json
+import os
 
 from utils import generate_pid
 
-MAIN_DOMAIN = 'pid-provider.wallet.test'
-PUBLIC_DOMAIN = 'public.pid-provider.wallet.test'
+DOMAIN_SUFFIX = os.getenv("DOMAIN_SUFFIX", "wallet.test")
+MAIN_DOMAIN = f'pid-provider.{DOMAIN_SUFFIX}'
+PUBLIC_DOMAIN = f'public.pid-provider.{DOMAIN_SUFFIX}'
 
 
 def register_routes(app, db):
