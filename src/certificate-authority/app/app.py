@@ -1,5 +1,6 @@
 import os
 import secrets
+import uuid
 import argon2
 from flask import redirect
 from quart_auth import (
@@ -97,6 +98,20 @@ async def logout():
 @login_required
 async def dashboard():
     return await render_template("dashboard.html")
+
+
+signing_uuids = dict()
+
+
+@app.route("/get_sign_url")
+@login_required
+async def get_sign_url():
+    username = current_user.auth_id
+
+    if username not in signing_uuids:
+        signing_uuids[username] = str(uuid.uuid4())
+
+    return await render_template("dashboard.html", uuid=signing_uuids[username])
 
 
 if __name__ == "__main__":
