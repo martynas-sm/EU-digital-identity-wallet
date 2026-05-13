@@ -1,5 +1,6 @@
 import {
-  type FormEvent,
+  type ClipboardEvent,
+  type DragEvent,
   useCallback,
   useEffect,
   useRef,
@@ -32,8 +33,9 @@ function extractCredentialOfferUri(text: string): string | null {
 function Scan() {
   const [state, setState] = useState<ScanState>("prompt");
   const [error, setError] = useState("");
-  const [pastedText, setPastedText] = useState("");
   const [pasteError, setPasteError] = useState("");
+  const [isDecodingImage, setIsDecodingImage] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const shouldStartRef = useRef(false);
   const navigate = useNavigate();
@@ -164,9 +166,69 @@ function Scan() {
     [handlePidProviderOffer, navigate, safeStopScanner, t],
   );
 
-  const handlePasteSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleQrImage = useCallback(
+    async (file: File) => {
+      setError("");
+      setPasteError("");
+      setIsDecodingImage(true);
+      await safeStopScanner();
+
+      const imageScanner = new Html5Qrcode("qr-image-reader");
+      try {
+        const decodedText = await imageScanner.scanFile(file, false);
+        await handleQrPayload(decodedText);
+      } catch {
+        setPasteError(t("scan.err_no_qr_in_image"));
+      } finally {
+        try {
+          imageScanner.clear();
+        } catch {
+          /* ignore */
+        }
+        setIsDecodingImage(false);
+      }
+    },
+    [handleQrPayload, safeStopScanner, t],
+  );
+
+  const handleImagePaste = (event: ClipboardEvent<HTMLDivElement>) => {
+    const imageFile = Array.from(event.clipboardData.items)
+      .find((item) => item.kind === "file" && item.type.startsWith("image/"))
+      ?.getAsFile();
+
+    if (!imageFile) {
+      setPasteError(t("scan.err_no_image"));
+      return;
+    }
+
     event.preventDefault();
-    void handleQrPayload(pastedText);
+    void handleQrImage(imageFile);
+  };
+
+  const handleImageDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragActive(true);
+  };
+
+  const handleImageDragLeave = () => {
+    setIsDragActive(false);
+  };
+
+  const handleImageDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+
+    const imageFile = Array.from(event.dataTransfer.files).find((file) =>
+      file.type.startsWith("image/"),
+    );
+
+    if (!imageFile) {
+      setPasteError(t("scan.err_no_image"));
+      return;
+    }
+
+    void handleQrImage(imageFile);
   };
 
   useEffect(() => {
@@ -237,32 +299,28 @@ function Scan() {
       )}
 
       {(state === "prompt" || state === "denied" || state === "error") && (
-        <form className={styles.pasteSection} onSubmit={handlePasteSubmit}>
-          <label className={styles.pasteLabel} htmlFor="qr-payload-input">
-            {t("scan.paste_label")}
-          </label>
-          <textarea
-            id="qr-payload-input"
-            className={styles.pasteTextarea}
-            rows={5}
-            value={pastedText}
-            onChange={(event) => {
-              setPastedText(event.target.value);
-              if (pasteError) setPasteError("");
-            }}
-            placeholder={t("scan.paste_placeholder")}
-            spellCheck={false}
-          />
+        <div
+          className={`${styles.pasteSection} ${
+            isDragActive ? styles.pasteSectionActive : ""
+          }`}
+          onPaste={handleImagePaste}
+          onDragOver={handleImageDragOver}
+          onDragEnter={handleImageDragOver}
+          onDragLeave={handleImageDragLeave}
+          onDrop={handleImageDrop}
+          tabIndex={0}
+          aria-label={t("scan.paste_label")}
+          aria-busy={isDecodingImage}
+        >
+          <ClipboardPaste size={32} className={styles.pasteIcon} />
+          <p className={styles.pasteLabel}>{t("scan.paste_label")}</p>
+          <p className={styles.pasteText}>{t("scan.paste_hint")}</p>
           {pasteError && <p className={styles.error}>{pasteError}</p>}
-          <button
-            className={styles.pasteButton}
-            type="submit"
-            disabled={!pastedText.trim()}
-          >
-            <ClipboardPaste size={18} />
-            {t("scan.use_pasted")}
-          </button>
-        </form>
+          {isDecodingImage && (
+            <p className={styles.pasteText}>{t("scan.decoding_paste")}</p>
+          )}
+          <div id="qr-image-reader" className={styles.hiddenImageReader} />
+        </div>
       )}
 
       {state === "scanning" && (
