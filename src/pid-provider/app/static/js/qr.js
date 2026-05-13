@@ -26,7 +26,7 @@ function startTimer() {
 
 function refreshQR() {
     timeLeft = 120;
-    fetch('/api/refresh-qr', { method: 'GET' })
+    fetch('https://pid-provider.wallet.test/api/refresh-qr', { method: 'GET' })
         .then(response => response.json())
         .then(data => {
             const offer_uri = data.offer_uri;
