@@ -66,17 +66,3 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 docker compose up
 ```
-
-## Cloud Run Deployment
-
-For deploying to Google Cloud Run, a multi-container `cloud-run-service.yaml` specification is provided. The service uses a sidecar pattern to deploy all components and an Nginx proxy behind the single default Cloud Run URL.
-
-Nginx will intercept requests to sub-paths (e.g. `/proxy/wallet-backend`) and transparently rewrite the requests to the internal sidecars while spoofing `.wallet.test` Host headers. It also dynamically modifies browser-side Javascript to adjust URLs on-the-fly, so absolutely no codebase changes were needed.
-
-1. Build and push your Docker images to a registry accessible by Cloud Run (e.g. Google Artifact Registry).
-2. Update the `image` fields in `cloud-run-service.yaml` to point to your deployed images instead of `cpu64/*:latest`.
-3. Deploy the service to Cloud Run:
-
-```bash
-gcloud run services replace cloud-run-service.yaml --region us-central1
-```
