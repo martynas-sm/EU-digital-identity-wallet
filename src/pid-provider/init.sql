@@ -37,4 +37,5 @@ INSERT INTO citizens (
 ) VALUES
 ('Jonas', 'Jonaitis', '1995-02-10', 'Kaunas, Lietuva', 'LT', 'Laisvės al. 100, Kaunas', 'LT', 'Kauno apskritis', 'Kaunas', 'LT-51111', 'Laisvės al.', '100', '39502101234', 'Male', 'JBSWY3DPEBLW64TM', 'jonas.jonaitis@test.lt'),
 ('Ona', 'Onaitė', '1997-03-19', 'Klaipėda, Lietuva', 'LT', 'Taikos pr. 50, Klaipėda', 'LT', 'Klaipėdos apskritis', 'Klaipėda', 'LT-44246', 'Taikos pr.', '50', '49703191234', 'Female', 'KRSXG5CTMVRXGZLU', 'ona.onaite@test.lt'),
-('Petras', 'Petraitis', '1980-01-01', 'Vilnius, Lietuva', 'LT', 'Gedimino pr. 1, Vilnius', 'LT', 'Vilniaus apskritis', 'Vilnius', 'LT-01103', 'Gedimino pr.', '1', '38001011234', 'Male', 'NBSWY3DPEB3W64TB', 'petras.petraitis@test.lt');
+('Petras', 'Petraitis', '1980-01-01', 'Vilnius, Lietuva', 'LT', 'Gedimino pr. 1, Vilnius', 'LT', 'Vilniaus apskritis', 'Vilnius', 'LT-01103', 'Gedimino pr.', '1', '38001011234', 'Male', 'NBSWY3DPEB3W64TB', 'petras.petraitis@test.lt'),
+('Adminas', 'Adminavičius', '2000-01-01', 'Vilnius, Lietuva', 'LT', 'Kauno g. 1, Vilnius', 'LT', 'Vilniaus apskritis', 'Vilnius', 'LT-12345', 'Kauno g.', '1', '123456789', 'Male', '', 'admin@test.lt');
