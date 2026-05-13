@@ -23,7 +23,7 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
             address: fields.address || null,
         }
         try {
-            const res = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            const res = await fetch('https://relying-party.wallet.test/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
             const data = await res.json()
             if (!res.ok) { setError(data.error ?? 'Checkout failed.'); return }
             cart.clearCart()

@@ -9,7 +9,7 @@ import './index.css'
 initWallet().then(() => {
     createRoot(document.getElementById('root')).render(
         <StrictMode>
-            <BrowserRouter>
+            <BrowserRouter basename={window.BASE_URL || '/'}>
                 <App />
                 <Toaster position="top-right" richColors />
             </BrowserRouter>

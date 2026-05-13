@@ -14,7 +14,7 @@ let mode = 'mock'
 
 export async function init() {
     try {
-        const res = await fetch('/api/wallet/mode')
+        const res = await fetch('https://relying-party.wallet.test/api/wallet/mode')
         mode = (await res.json()).mode ?? 'mock'
     } catch {
         mode = 'mock'

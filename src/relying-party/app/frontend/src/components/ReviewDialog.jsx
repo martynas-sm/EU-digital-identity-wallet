@@ -27,7 +27,7 @@ export function ReviewDialog({ open, productId, onClose, onPosted }) {
                 description: "Share your verified First Name from your EUDI Wallet to post a review."
             })
 
-            const res = await fetch('/api/reviews', {
+            const res = await fetch('https://relying-party.wallet.test/api/reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

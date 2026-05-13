@@ -188,6 +188,12 @@ function Verify() {
       return;
     }
 
+    let absoluteProofEndpoint = parsed.proof_endpoint;
+    if (absoluteProofEndpoint.startsWith("/")) {
+      absoluteProofEndpoint = window.location.origin + absoluteProofEndpoint;
+      parsed.proof_endpoint = absoluteProofEndpoint;
+    }
+
     try {
       new URL(parsed.proof_endpoint);
     } catch {

@@ -29,13 +29,13 @@ export async function requestReviewClaims(options = {}) {
 import { showWalletRequestDialog } from '../components/WalletRequestDialog';
 
 async function handleWalletRequest(requestPayload, options = {}) {
-    const res = await fetch('/api/wallet/request', { method: 'POST' });
+    const res = await fetch('https://relying-party.wallet.test/api/wallet/request', { method: 'POST' });
     const { nonce } = await res.json();
 
     const specRequest = {
         ...requestPayload,
         nonce,
-        proof_endpoint: `https://public.${window.location.hostname}/api/proof`,
+        proof_endpoint: `https://public.relying-party.wallet.test/api/proof`,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
     };
 

@@ -33,7 +33,7 @@ export function WalletRequestDialog() {
             return new Promise((resolve, reject) => {
                 const interval = setInterval(async () => {
                     try {
-                        const pollRes = await fetch(`/api/wallet/status/${payload.nonce}`);
+                        const pollRes = await fetch(`https://relying-party.wallet.test/api/wallet/status/${payload.nonce}`);
                         if (pollRes.status === 200) {
                             const data = await pollRes.json();
                             clearInterval(interval);
