@@ -1,4 +1,4 @@
-import { cipher, util } from "node-forge";
+import { cipher, random, util } from "node-forge";
 
 export type Credential = {
   id: string;
@@ -53,12 +53,12 @@ export const updateData = async (newData: WalletData) => {
 
   const keyBytes = util.hexToBytes(key);
   const c = cipher.createCipher("AES-CBC", keyBytes);
-  const ivBytes = util.hexToBytes("0102030405060708090a0b0c0d0e0f10");
+  const ivBytes = random.getBytesSync(16);
   c.start({ iv: ivBytes });
   c.update(util.createBuffer(JSON.stringify(newData), "utf8"));
   c.finish();
 
-  const blob = c.output.toHex();
+  const blob = ivBytes + c.output.toHex();
 
   const response = await fetch(
     "https://wallet-backend.wallet.test/api/store_blob",
@@ -105,10 +105,15 @@ export const getData = async (): Promise<WalletData> => {
   }
 
   const keyBytes = util.hexToBytes(key);
-  const ivBytes = util.hexToBytes("0102030405060708090a0b0c0d0e0f10");
+  const ivBytes = (contents.blob as string).substring(0, 16);
   const d = cipher.createDecipher("AES-CBC", keyBytes);
   d.start({ iv: ivBytes });
-  d.update(util.createBuffer(util.hexToBytes(contents.blob), "raw"));
+  d.update(
+    util.createBuffer(
+      util.hexToBytes((contents.blob as string).substring(16)),
+      "raw",
+    ),
+  );
   const ok = d.finish();
   if (!ok) {
     throw new Error("decrypt failed");
