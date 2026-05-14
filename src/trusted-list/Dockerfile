@@ -12,6 +12,6 @@ RUN sqlite3 app.db < init.sql
 
 RUN pip install --prefer-binary --no-cache-dir --break-system-packages --root-user-action ignore -r requirements.txt
 
-COPY app/ .
+COPY ./app/ ./app/
 
-CMD update-ca-certificates && hypercorn app:app --bind "0.0.0.0:8000"
+CMD update-ca-certificates && hypercorn app.app:app --bind "0.0.0.0:8000"

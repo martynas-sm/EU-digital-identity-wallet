@@ -15,3 +15,6 @@
 # IDE/editor files
 **/.vscode/
 **/.idea/
+
+# DB
+**/app.db

@@ -6,8 +6,8 @@ services:
 
   trusted-list:
     volumes:
-      - ./trusted-list/app:/app
-    command: sh -c 'update-ca-certificates && hypercorn app:app --bind "0.0.0.0:8000" --reload'
+      - ./trusted-list/:/app
+    command: sh -c 'update-ca-certificates && rm -f app.db && sqlite3 app.db < init.sql && hypercorn app.app:app --bind "0.0.0.0:8000" --reload'
 
   pid-provider:
     volumes:
