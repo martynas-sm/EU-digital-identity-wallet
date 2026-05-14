@@ -5,14 +5,13 @@ import { Download, FileUp, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
-import { PDFDocument } from "pdf-lib";
-import { pdflibAddPlaceholder } from "@signpdf/placeholder-pdf-lib";
-import signpdf from "@signpdf/signpdf";
-import { P12Signer } from "@signpdf/signer-p12";
 import { getData, updateData } from "@/data/wallet_data";
-import { getSigningData as fetchSigningDataFromCa } from "@/lib/signing";
+import {
+  getSigningData as fetchSigningDataFromCa,
+  type SigningData,
+} from "@/lib/signing";
 
-async function loadSigningData(caCode: string): Promise<Uint8Array> {
+async function loadSigningData(caCode: string): Promise<SigningData> {
   const data = await getData();
 
   // TODO: get given name from wallet data?
@@ -30,7 +29,7 @@ function SignDocument() {
   const [loading, setLoading] = useState(false);
   const [loadingSigningData, setLoadingSigningData] = useState(false);
   const [error, setError] = useState("");
-  const [signingData, setSigningData] = useState<Uint8Array | null>(null);
+  const [signingData, setSigningData] = useState<SigningData | null>(null);
   const [caCode, setCaCode] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
@@ -93,7 +92,7 @@ function SignDocument() {
     }
 
     if (!signingData) {
-      setError("Signing data is missing. Enter a CA code and load it first.");
+      setError("Signing data is missing. Load it first.");
       return;
     }
 
@@ -101,29 +100,33 @@ function SignDocument() {
     setError("");
 
     try {
-      const pdfBytes = await file.arrayBuffer();
-      const pdf = await PDFDocument.load(pdfBytes);
+      const formData = new FormData();
+      formData.append("file", file, "document.pdf");
+      formData.append("private_key", signingData.privateKeyPem);
+      formData.append("certificate", signingData.certPem);
+      formData.append("field_name", "Username");
 
-      pdflibAddPlaceholder({
-        pdfDoc: pdf,
-        reason: "WalletBy signature",
-        name: "Username",
-        location: "WalletBy",
-        contactInfo: "wallet-frontend.wallet.test",
-      });
+      const response = await fetch(
+        "https://wallet-backend.wallet.test/api/sign",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          body: formData,
+        },
+      );
 
-      const preparedPdf = await pdf.save();
-      const signer = new P12Signer(signingData);
-      const signedPdf = await signpdf.sign(preparedPdf, signer);
-      const blob = new Blob([signedPdf as unknown as BlobPart], {
-        type: "application/pdf",
-      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
 
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-
       link.href = url;
-      link.download = "document.pdf";
+      link.download = "signed_document.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

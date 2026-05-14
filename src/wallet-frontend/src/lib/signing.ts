@@ -50,28 +50,24 @@ async function getCertFromCa(csrPem: string, caCode: string): Promise<string> {
   return certPem;
 }
 
-function getP12FromSigningData(
-  keyPair: pki.rsa.KeyPair,
-  certPem: string,
-): Uint8Array {
-  const cert = pki.certificateFromPem(certPem);
-  const p12Asn1 = pkcs12.toPkcs12Asn1(keyPair.privateKey, cert, null);
+function privateKeyToPem(keyPair: pki.rsa.KeyPair): string {
+  const privateKeyPkcs8 = pki.privateKeyToPem(keyPair.privateKey);
+  return privateKeyPkcs8;
+}
 
-  const derBytes = asn1.toDer(p12Asn1).getBytes();
-  const u8 = new Uint8Array(derBytes.length);
-  for (let i = 0; i < derBytes.length; i++) {
-    u8[i] = derBytes.charCodeAt(i);
-  }
-  return u8;
+export interface SigningData {
+  privateKeyPem: string;
+  certPem: string;
 }
 
 export async function getSigningData(
   caCode: string,
   name: string,
-): Promise<Uint8Array> {
+): Promise<SigningData> {
   const keyPair = await generateKeyPair();
   const csrPem = await generateCsr(keyPair, name);
   const certPem = await getCertFromCa(csrPem, caCode);
+  const privateKeyPem = privateKeyToPem(keyPair);
 
-  return getP12FromSigningData(keyPair, certPem);
+  return { privateKeyPem, certPem };
 }

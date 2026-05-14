@@ -1,21 +1,17 @@
 import os
 import secrets
-from app.signing import generate_p12_cert
+import tempfile
 import argon2
+from pyhanko.stamp import TextStampStyle
 from app import db
 from app import totp
 from quart import Response, jsonify, Quart, current_app, request, send_file
 from quart_auth import QuartAuth, login_required, current_user
 from quart_cors import cors
-from pyhanko.sign import signers, fields
+from io import BytesIO
+from pyhanko.sign import PdfSignatureMetadata, PdfSigner, signers, fields
 from pyhanko.sign.fields import SigFieldSpec, append_signature_field
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
-from pyhanko.stamp import TextStampStyle
-from pyhanko.sign.signers import PdfSignatureMetadata
-from pyhanko_certvalidator.registry import CertificateStore
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.serialization import pkcs12
-from io import BytesIO
 
 app = Quart(__name__)
 app.config["QUART_AUTH_MODE"] = "bearer"
@@ -28,7 +24,6 @@ app = cors(
     allow_headers=["Content-Type", "Authorization"],
 )
 auth = QuartAuth(app)
-cert_registry = CertificateStore()
 
 
 @app.before_serving
@@ -205,17 +200,34 @@ async def store_blob():
 async def sign_document():
     files = await request.files
     pdf_file = files.get("file")
+
+    form = await request.form
+    private_key_pem = form.get("private_key")
+    cert_pem = form.get("certificate")
+
     if not pdf_file or not pdf_file.filename.endswith(".pdf"):
         return {"error": "Invalid or missing PDF file"}, 400
+    if not private_key_pem or not cert_pem:
+        return {"error": "Missing private key or certificate"}, 400
 
     pdf_bytes = pdf_file.read()
 
     try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".pem", delete=True
+        ) as key_file, tempfile.NamedTemporaryFile(
+            mode="w", suffix=".pem", delete=True
+        ) as cert_file:
+
+            key_file.write(private_key_pem)
+            key_file.flush()
+            cert_file.write(cert_pem)
+            cert_file.flush()
+
+            signer = signers.SimpleSigner.load(key_file.name, cert_file.name)
+
         input_stream = BytesIO(pdf_bytes)
         output_stream = BytesIO()
-
-        p12_path = generate_p12_cert()
-        signer = signers.SimpleSigner.load_pkcs12(pfx_file=p12_path, passphrase=None)
 
         stamp_style = TextStampStyle(
             stamp_text="Digitally signed using Walletby\nDate: %(ts)s",
@@ -228,7 +240,7 @@ async def sign_document():
             location="Walletby",
         )
 
-        pdf_signer = signers.PdfSigner(
+        pdf_signer = PdfSigner(
             signature_meta=signature_meta,
             signer=signer,
             stamp_style=stamp_style,
@@ -240,7 +252,6 @@ async def sign_document():
             sig_field_spec = SigFieldSpec(
                 sig_field_name="Signature", on_page=0, box=(5, 5, 100, 100)
             )
-
             append_signature_field(w, sig_field_spec)
 
             await pdf_signer.async_sign_pdf(w, output=output_stream)
@@ -250,9 +261,8 @@ async def sign_document():
             output_stream,
             mimetype="application/pdf",
             as_attachment=True,
-            attachment_filename="document.pdf",
+            attachment_filename="signed_document.pdf",
         )
-
     except Exception as e:
         app.logger.exception("Signing failed")
         return {"error": str(e)}, 500

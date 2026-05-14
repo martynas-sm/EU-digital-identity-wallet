@@ -1,3 +1,4 @@
+import type { SigningData } from "@/lib/signing";
 import { cipher, random, util } from "node-forge";
 
 export type Credential = {
@@ -30,7 +31,7 @@ export type Transaction = {
 export type WalletData = {
   credentials: Credential[];
   transactions: Transaction[];
-  signingData: Uint8Array | null;
+  signingData: SigningData | null;
 };
 
 const defaultWalletData: WalletData = {
@@ -60,7 +61,7 @@ export const updateData = async (newData: WalletData) => {
   c.update(util.createBuffer(JSON.stringify(newData), "utf8"));
   c.finish();
 
-  const blob = ivBytes + c.output.toHex();
+  const blob = util.bytesToHex(ivBytes) + c.output.toHex();
 
   const response = await fetch(
     "https://wallet-backend.wallet.test/api/store_blob",
@@ -107,12 +108,12 @@ export const getData = async (): Promise<WalletData> => {
   }
 
   const keyBytes = util.hexToBytes(key);
-  const ivBytes = (contents.blob as string).substring(0, 16);
+  const ivBytes = util.hexToBytes((contents.blob as string).substring(0, 32));
   const d = cipher.createDecipher("AES-CBC", keyBytes);
   d.start({ iv: ivBytes });
   d.update(
     util.createBuffer(
-      util.hexToBytes((contents.blob as string).substring(16)),
+      util.hexToBytes((contents.blob as string).substring(32)),
       "raw",
     ),
   );
