@@ -30,11 +30,13 @@ export type Transaction = {
 export type WalletData = {
   credentials: Credential[];
   transactions: Transaction[];
+  signingData: Uint8Array | null;
 };
 
 const defaultWalletData: WalletData = {
   credentials: [],
   transactions: [],
+  signingData: null,
 };
 
 export const initData = async () => {
