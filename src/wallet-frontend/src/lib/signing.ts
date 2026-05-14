@@ -1,4 +1,4 @@
-import { asn1, md, pkcs12, pki } from "node-forge";
+import { md, pki } from "node-forge";
 
 async function generateKeyPair() {
   const keyPair = await new Promise<pki.rsa.KeyPair>((resolve, reject) => {
