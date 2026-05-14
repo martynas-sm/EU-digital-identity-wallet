@@ -1,4 +1,5 @@
-FROM cpu64/python3.13_postgresql
+FROM public.ecr.aws/docker/library/python:3.13-slim
+RUN apt-get update && apt-get install -y postgresql-client build-essential libpq-dev ca-certificates
 
 RUN apt-get update && \
     apt-get install -y curl ca-certificates && \

@@ -1,5 +1,6 @@
 from functools import partial
-from quart import Quart, Blueprint, jsonify, request, abort
+from quart import Quart
+from werkzeug.middleware.proxy_fix import ProxyFix, Blueprint, jsonify, request, abort
 from quart_cors import cors
 from werkzeug.exceptions import HTTPException
 import logging

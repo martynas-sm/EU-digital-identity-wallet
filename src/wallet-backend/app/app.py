@@ -5,6 +5,7 @@ import argon2
 from app import db
 from app import totp
 from quart import Response, jsonify, Quart, current_app, request, send_file
+from werkzeug.middleware.proxy_fix import ProxyFix
 from quart_auth import QuartAuth, login_required, current_user
 from quart_cors import cors
 from pyhanko.sign import signers, fields
@@ -18,6 +19,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from io import BytesIO
 
 app = Quart(__name__)
+app.asgi_app = ProxyFix(app.asgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.config["QUART_AUTH_MODE"] = "bearer"
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 app.secret_key = secrets.token_urlsafe(16)

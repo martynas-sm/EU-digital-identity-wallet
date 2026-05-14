@@ -50,7 +50,7 @@ services:
       - ./pid-provider/app/keys:/app/keys
 
   pid-db:
-    image: postgres:18-alpine
+    image: public.ecr.aws/docker/library/postgres:16.1-alpine
     container_name: pid-db
     environment:
       POSTGRES_USER: postgres

@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM node:25-alpine AS build
+FROM public.ecr.aws/docker/library/node:25-alpine AS build
 
 WORKDIR /build
 
