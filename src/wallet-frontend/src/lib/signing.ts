@@ -1,4 +1,4 @@
-import { asn1, md, pkcs12, pki, type Bytes } from "node-forge";
+import { asn1, md, pkcs12, pki } from "node-forge";
 
 async function generateKeyPair() {
   const keyPair = await new Promise<pki.rsa.KeyPair>((resolve, reject) => {
@@ -41,7 +41,9 @@ async function getCertFromCa(csrPem: string, caCode: string): Promise<string> {
   );
 
   if (!response.ok) {
-    throw new Error(`CSR signing failed: ${response.status}`);
+    throw new Error(
+      `CSR signing failed: ${response.status} ${await response.text()}`,
+    );
   }
 
   const certPem = (await response.json()).crt;
