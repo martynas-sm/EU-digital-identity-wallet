@@ -6,7 +6,7 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY requirements.txt init.sql .
+COPY requirements.txt init.sql ./
 
 RUN sqlite3 app.db < init.sql
 
