@@ -2,7 +2,6 @@ import os
 import secrets
 import uuid
 import argon2
-from flask import redirect
 from quart_auth import (
     AuthUser,
     QuartAuth,
@@ -13,6 +12,7 @@ from quart_auth import (
 )
 from quart_cors import cors
 from quart import (
+    redirect,
     Blueprint,
     Quart,
     current_app,
@@ -53,6 +53,7 @@ async def startup():
     app.private_key = cert_info[0]
     app.public_key = cert_info[1]
     app.cert = cert_info[2]
+    app.signing_uuids = dict()
 
 
 @app.after_serving
@@ -109,22 +110,19 @@ async def dashboard():
     return await render_template("dashboard.html")
 
 
-signing_uuids = dict()
-
-
 @app.route("/get_sign_url")
 @login_required
 async def get_sign_url():
     username = current_user.auth_id
 
-    if username not in signing_uuids:
-        signing_uuids[username] = str(uuid.uuid4())
+    if username not in app.signing_uuids:
+        app.signing_uuids[username] = str(uuid.uuid4())
 
-    return await render_template("dashboard.html", uuid=signing_uuids[username])
+    return await render_template("dashboard.html", uuid=app.signing_uuids[username])
 
 
 def contains_uuid(id):
-    for k, v in signing_uuids.values():
+    for v in app.signing_uuids.values():
         if v == id:
             return True
     return False
@@ -142,7 +140,7 @@ async def sign(id):
     if not contains_uuid(id):
         return "Invalid signing request ID", 401
 
-    signing_uuids = {k: v for k, v in signing_uuids.items() if v != id}
+    app.signing_uuids = {k: v for k, v in app.signing_uuids.items() if v != id}
 
     req = await request.get_json()
     if req is None or "csr" not in req:

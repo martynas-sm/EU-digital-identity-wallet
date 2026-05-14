@@ -1,4 +1,5 @@
-import { AES, enc } from "crypto-js";
+import type { SigningData } from "@/lib/signing";
+import { cipher, random, util } from "node-forge";
 
 export type Credential = {
   id: string;
@@ -30,11 +31,13 @@ export type Transaction = {
 export type WalletData = {
   credentials: Credential[];
   transactions: Transaction[];
+  signingData: SigningData | null;
 };
 
 const defaultWalletData: WalletData = {
   credentials: [],
   transactions: [],
+  signingData: null,
 };
 
 export const initData = async () => {
@@ -51,7 +54,14 @@ export const updateData = async (newData: WalletData) => {
     throw new Error("Blob key was not found");
   }
 
-  const blob = AES.encrypt(JSON.stringify(newData), key).toString();
+  const keyBytes = util.hexToBytes(key);
+  const c = cipher.createCipher("AES-CBC", keyBytes);
+  const ivBytes = random.getBytesSync(16);
+  c.start({ iv: ivBytes });
+  c.update(util.createBuffer(JSON.stringify(newData), "utf8"));
+  c.finish();
+
+  const blob = util.bytesToHex(ivBytes) + c.output.toHex();
 
   const response = await fetch(
     "https://wallet-backend.wallet.test/api/store_blob",
@@ -97,9 +107,24 @@ export const getData = async (): Promise<WalletData> => {
     throw new Error("Key not found");
   }
 
-  const decrypted = AES.decrypt(contents.blob, key).toString(enc.Utf8);
+  const keyBytes = util.hexToBytes(key);
+  const ivBytes = util.hexToBytes((contents.blob as string).substring(0, 32));
+  const d = cipher.createDecipher("AES-CBC", keyBytes);
+  d.start({ iv: ivBytes });
+  d.update(
+    util.createBuffer(
+      util.hexToBytes((contents.blob as string).substring(32)),
+      "raw",
+    ),
+  );
+  const ok = d.finish();
+  if (!ok) {
+    throw new Error("decrypt failed");
+  }
 
-  return JSON.parse(decrypted);
+  const output = d.output.getBytes();
+
+  return JSON.parse(output);
 };
 
 export async function getCredentialById(
