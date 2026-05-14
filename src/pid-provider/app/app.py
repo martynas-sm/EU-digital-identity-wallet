@@ -2,6 +2,7 @@ import os
 
 import json
 from quart import Quart
+from werkzeug.middleware.proxy_fix import ProxyFix
 from quart_db import QuartDB
 from jwcrypto import jwk
 
@@ -19,6 +20,7 @@ MAIN_DOMAIN = 'pid-provider.wallet.test'
 
 app = Quart(__name__, host_matching=True, static_host=MAIN_DOMAIN)
 app.secret_key = os.environ.get("SECRET_KEY")
+app.asgi_app = ProxyFix(app.asgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 db = QuartDB(app, url=DB_URL)
 
 register_routes(app, db)

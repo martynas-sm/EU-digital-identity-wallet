@@ -12,6 +12,7 @@ from quart_auth import (
     logout_user,
 )
 from quart_cors import cors
+from werkzeug.middleware.proxy_fix import ProxyFix
 from quart import (
     Blueprint,
     Quart,
@@ -27,6 +28,7 @@ from app import signing
 from cryptography.hazmat.primitives import serialization
 
 app = Quart(__name__)
+app.asgi_app = ProxyFix(app.asgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 main = Blueprint("main", __name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 app.secret_key = secrets.token_urlsafe(16)
