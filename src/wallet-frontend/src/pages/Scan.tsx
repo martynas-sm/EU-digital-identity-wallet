@@ -1,7 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  type ClipboardEvent,
+  type DragEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
-import { QrCode, Camera, Loader2 } from "lucide-react";
+import { QrCode, Camera, ClipboardPaste, Loader2 } from "lucide-react";
 import styles from "../components/ScanPage/Scan.module.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,6 +33,9 @@ function extractCredentialOfferUri(text: string): string | null {
 function Scan() {
   const [state, setState] = useState<ScanState>("prompt");
   const [error, setError] = useState("");
+  const [pasteError, setPasteError] = useState("");
+  const [isDecodingImage, setIsDecodingImage] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const shouldStartRef = useRef(false);
   const navigate = useNavigate();
@@ -37,7 +47,7 @@ function Scan() {
     setState("scanning");
   };
 
-  const safeStopScanner = async () => {
+  const safeStopScanner = useCallback(async () => {
     const scanner = scannerRef.current;
     scannerRef.current = null;
     if (!scanner) return;
@@ -53,81 +63,172 @@ function Scan() {
     } catch {
       /* ignore */
     }
+  }, []);
+
+  const handlePidProviderOffer = useCallback(
+    async (offerText: string) => {
+      setState("issuing-pid");
+      try {
+        const offerUri = extractCredentialOfferUri(offerText);
+        if (!offerUri) {
+          throw new Error(t("scan.err_invalid_offer"));
+        }
+
+        const offerResp = await fetch(offerUri);
+        if (!offerResp.ok) {
+          throw new Error(`${t("scan.err_offer_fetch")} (${offerResp.status})`);
+        }
+        const offer = await offerResp.json();
+        const credentialIssuer: string | undefined = offer.credential_issuer;
+        const preAuthCode: string | undefined =
+          offer?.grants?.[
+            "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+          ]?.["pre-authorized_code"];
+
+        if (!credentialIssuer || !preAuthCode) {
+          throw new Error(t("scan.err_invalid_offer"));
+        }
+
+        const metaResp = await fetch(
+          `${credentialIssuer.replace(/\/$/, "")}/.well-known/credential-issuer`,
+        );
+        if (!metaResp.ok) {
+          throw new Error(
+            `${t("scan.err_metadata_fetch")} (${metaResp.status})`,
+          );
+        }
+        const metadata = await metaResp.json();
+        const credentialEndpoint: string | undefined =
+          metadata.credential_endpoint;
+        if (!credentialEndpoint) {
+          throw new Error(t("scan.err_invalid_metadata"));
+        }
+
+        const { passkey, privateJwk, minimalPubKey } =
+          await createPidIssuanceMaterial();
+
+        const issueResp = await fetch(credentialEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: preAuthCode,
+            pub_key: minimalPubKey,
+            passkey,
+          }),
+        });
+        if (!issueResp.ok) {
+          const data = await issueResp.json().catch(() => ({}));
+          throw new Error(
+            data.error || `${t("scan.err_issue_pid")} (${issueResp.status})`,
+          );
+        }
+
+        const issuerHost = new URL(credentialIssuer).host;
+        const providerDomain = issuerHost.replace(/^public\./, "");
+        const receiveEndpoint = `${credentialIssuer.replace(/\/$/, "")}/api/receive-pid`;
+
+        storePidIssuanceContext({
+          passkey,
+          privateJwk,
+          providerDomain,
+          receiveEndpoint,
+        });
+
+        navigate("/pid-callback");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : t("scan.err_issue_pid");
+        setError(message);
+        setState("error");
+      }
+    },
+    [navigate, t],
+  );
+
+  const handleQrPayload = useCallback(
+    async (payload: string) => {
+      const trimmedPayload = payload.trim();
+      if (!trimmedPayload) {
+        setPasteError(t("scan.err_empty"));
+        return;
+      }
+
+      setError("");
+      setPasteError("");
+      await safeStopScanner();
+
+      if (isCredentialOffer(trimmedPayload)) {
+        await handlePidProviderOffer(trimmedPayload);
+      } else {
+        navigate("/verify", { state: { scannedData: trimmedPayload } });
+      }
+    },
+    [handlePidProviderOffer, navigate, safeStopScanner, t],
+  );
+
+  const handleQrImage = useCallback(
+    async (file: File) => {
+      setError("");
+      setPasteError("");
+      setIsDecodingImage(true);
+      await safeStopScanner();
+
+      const imageScanner = new Html5Qrcode("qr-image-reader");
+      try {
+        const decodedText = await imageScanner.scanFile(file, false);
+        await handleQrPayload(decodedText);
+      } catch {
+        setPasteError(t("scan.err_no_qr_in_image"));
+      } finally {
+        try {
+          imageScanner.clear();
+        } catch {
+          /* ignore */
+        }
+        setIsDecodingImage(false);
+      }
+    },
+    [handleQrPayload, safeStopScanner, t],
+  );
+
+  const handleImagePaste = (event: ClipboardEvent<HTMLDivElement>) => {
+    const imageFile = Array.from(event.clipboardData.items)
+      .find((item) => item.kind === "file" && item.type.startsWith("image/"))
+      ?.getAsFile();
+
+    if (!imageFile) {
+      setPasteError(t("scan.err_no_image"));
+      return;
+    }
+
+    event.preventDefault();
+    void handleQrImage(imageFile);
   };
 
-  const handlePidProviderOffer = async (offerText: string) => {
-    setState("issuing-pid");
-    try {
-      const offerUri = extractCredentialOfferUri(offerText);
-      if (!offerUri) {
-        throw new Error(t("scan.err_invalid_offer"));
-      }
+  const handleImageDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragActive(true);
+  };
 
-      const offerResp = await fetch(offerUri);
-      if (!offerResp.ok) {
-        throw new Error(`${t("scan.err_offer_fetch")} (${offerResp.status})`);
-      }
-      const offer = await offerResp.json();
-      const credentialIssuer: string | undefined = offer.credential_issuer;
-      const preAuthCode: string | undefined =
-        offer?.grants?.[
-          "urn:ietf:params:oauth:grant-type:pre-authorized_code"
-        ]?.["pre-authorized_code"];
+  const handleImageDragLeave = () => {
+    setIsDragActive(false);
+  };
 
-      if (!credentialIssuer || !preAuthCode) {
-        throw new Error(t("scan.err_invalid_offer"));
-      }
+  const handleImageDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
 
-      const metaResp = await fetch(
-        `${credentialIssuer.replace(/\/$/, "")}/.well-known/credential-issuer`,
-      );
-      if (!metaResp.ok) {
-        throw new Error(`${t("scan.err_metadata_fetch")} (${metaResp.status})`);
-      }
-      const metadata = await metaResp.json();
-      const credentialEndpoint: string | undefined =
-        metadata.credential_endpoint;
-      if (!credentialEndpoint) {
-        throw new Error(t("scan.err_invalid_metadata"));
-      }
+    const imageFile = Array.from(event.dataTransfer.files).find((file) =>
+      file.type.startsWith("image/"),
+    );
 
-      const { passkey, privateJwk, minimalPubKey } =
-        await createPidIssuanceMaterial();
-
-      const issueResp = await fetch(credentialEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code: preAuthCode,
-          pub_key: minimalPubKey,
-          passkey,
-        }),
-      });
-      if (!issueResp.ok) {
-        const data = await issueResp.json().catch(() => ({}));
-        throw new Error(
-          data.error || `${t("scan.err_issue_pid")} (${issueResp.status})`,
-        );
-      }
-
-      const issuerHost = new URL(credentialIssuer).host;
-      const providerDomain = issuerHost.replace(/^public\./, "");
-      const receiveEndpoint = `${credentialIssuer.replace(/\/$/, "")}/api/receive-pid`;
-
-      storePidIssuanceContext({
-        passkey,
-        privateJwk,
-        providerDomain,
-        receiveEndpoint,
-      });
-
-      navigate("/pid-callback");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t("scan.err_issue_pid");
-      setError(message);
-      setState("error");
+    if (!imageFile) {
+      setPasteError(t("scan.err_no_image"));
+      return;
     }
+
+    void handleQrImage(imageFile);
   };
 
   useEffect(() => {
@@ -147,13 +248,7 @@ function Scan() {
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: qrSize, height: qrSize } },
           (decodedText) => {
-            void safeStopScanner();
-
-            if (isCredentialOffer(decodedText)) {
-              handlePidProviderOffer(decodedText);
-            } else {
-              navigate("/verify", { state: { scannedData: decodedText } });
-            }
+            void handleQrPayload(decodedText);
           },
           () => {},
         );
@@ -174,7 +269,7 @@ function Scan() {
     };
 
     init();
-  }, [state, navigate]);
+  }, [handleQrPayload, safeStopScanner, state, t]);
 
   const stopScanner = async () => {
     await safeStopScanner();
@@ -185,7 +280,7 @@ function Scan() {
     return () => {
       void safeStopScanner();
     };
-  }, []);
+  }, [safeStopScanner]);
 
   return (
     <div className={styles.container}>
@@ -200,6 +295,31 @@ function Scan() {
           <button className={styles.startButton} onClick={startScanner}>
             {t("scan.start")}
           </button>
+        </div>
+      )}
+
+      {(state === "prompt" || state === "denied" || state === "error") && (
+        <div
+          className={`${styles.pasteSection} ${
+            isDragActive ? styles.pasteSectionActive : ""
+          }`}
+          onPaste={handleImagePaste}
+          onDragOver={handleImageDragOver}
+          onDragEnter={handleImageDragOver}
+          onDragLeave={handleImageDragLeave}
+          onDrop={handleImageDrop}
+          tabIndex={0}
+          aria-label={t("scan.paste_label")}
+          aria-busy={isDecodingImage}
+        >
+          <ClipboardPaste size={32} className={styles.pasteIcon} />
+          <p className={styles.pasteLabel}>{t("scan.paste_label")}</p>
+          <p className={styles.pasteText}>{t("scan.paste_hint")}</p>
+          {pasteError && <p className={styles.error}>{pasteError}</p>}
+          {isDecodingImage && (
+            <p className={styles.pasteText}>{t("scan.decoding_paste")}</p>
+          )}
+          <div id="qr-image-reader" className={styles.hiddenImageReader} />
         </div>
       )}
 
