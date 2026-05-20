@@ -2,7 +2,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   CreditCard,
   QrCode,
-  Settings,
   LogOut,
   ShieldCheck,
   ArrowLeftRight,
@@ -23,7 +22,6 @@ const navItems = [
   },
   { to: "/scan", icon: QrCode, labelKey: "sidenav.scan" },
   { to: "/sign", icon: Signature, labelKey: "sidenav.document_signing" },
-  { to: "/settings", icon: Settings, labelKey: "sidenav.settings" },
 ];
 
 function removeToken() {

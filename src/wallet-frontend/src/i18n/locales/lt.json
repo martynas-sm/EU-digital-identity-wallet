@@ -21,7 +21,7 @@
     "title": "Registruotis prie Walletby",
     "username": "Vartotojo vardas:",
     "password": "Slaptažodis:",
-    "totp_checkbox": "Norėčiau naudoti dviejų veiksnių autentifikaciją per TOTP (laikiniai vienkartiniai slaptažodžiai)",
+    "totp_checkbox": "Norėčiau naudoti dviejų veiksnių autentifikaciją per TOTP (laikini vienkartiniai slaptažodžiai)",
     "totp_scan_label": "Nuskaitykite šį QR kodą savo autentifikavimo programėle, kad inicijuotumėte TOTP",
     "totp_loading": "Palaukite, kol užsikraus QR kodas...",
     "submit": "Registruotis",
