@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { FormField, Input } from '@/components/ui/form'
 import * as cart from '@/services/cart'
 import * as wallet from '@/services/wallet'
+import * as auth from '@/services/auth'
 
 export function CheckoutDialog({ open, ageConfirmed, onClose }) {
     const [step, setStep] = useState('form')
@@ -23,7 +24,11 @@ export function CheckoutDialog({ open, ageConfirmed, onClose }) {
             address: fields.address || null,
         }
         try {
-            const res = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            const headers = { 'Content-Type': 'application/json' }
+            const token = auth.getToken()
+            if (token) headers['Authorization'] = token
+
+            const res = await fetch('/api/checkout', { method: 'POST', headers, body: JSON.stringify(body) })
             const data = await res.json()
             if (!res.ok) { setError(data.error ?? 'Checkout failed.'); return }
             cart.clearCart()
