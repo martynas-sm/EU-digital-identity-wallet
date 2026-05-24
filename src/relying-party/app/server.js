@@ -33,6 +33,21 @@ db.exec(`
     rating      INTEGER NOT NULL DEFAULT 5,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    username    TEXT    NOT NULL UNIQUE,
+    password    TEXT    NOT NULL,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS transactions (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id),
+    total_cents INTEGER NOT NULL,
+    items_count INTEGER NOT NULL,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 try {
@@ -105,6 +120,27 @@ if (count === 0) {
             price_cents: 3499,
         },
     ]);
+}
+
+// Seed user and transactions if users table is empty
+const userCount = db.prepare("SELECT COUNT(*) AS n FROM users").get().n;
+if (userCount === 0) {
+    const insertUser = db.prepare(`
+        INSERT INTO users (username, password)
+        VALUES (@username, @password)
+    `);
+    const insertTransaction = db.prepare(`
+        INSERT INTO transactions (user_id, total_cents, items_count)
+        VALUES (@user_id, @total_cents, @items_count)
+    `);
+
+    db.transaction(() => {
+        const result = insertUser.run({ username: "johndoe", password: "password123" });
+        const userId = result.lastInsertRowid;
+
+        insertTransaction.run({ user_id: userId, total_cents: 1448, items_count: 2 });
+        insertTransaction.run({ user_id: userId, total_cents: 3499, items_count: 1 });
+    })();
 }
 
 // ---------------------------------------------------------------------------
@@ -243,6 +279,38 @@ app.post("/api/reviews", (req, res) => {
     res.status(201).json({ id: result.lastInsertRowid });
 });
 
+app.post("/api/register", (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "username and password are required" });
+
+    try {
+        const result = db.prepare("INSERT INTO users (username, password) VALUES (@username, @password)").run({ username, password });
+        res.status(201).json({ id: result.lastInsertRowid, username });
+    } catch (e) {
+        if (e.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            return res.status(400).json({ error: "Username already exists" });
+        }
+        res.status(500).json({ error: "Registration failed" });
+    }
+});
+
+app.post("/api/login", (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "username and password are required" });
+
+    const user = db.prepare("SELECT id, username FROM users WHERE username = ? AND password = ?").get(username, password);
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    res.json({ token: user.id.toString(), username: user.username });
+});
+
+app.get("/api/transactions", (req, res) => {
+    const userId = req.headers.authorization;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    const transactions = db.prepare("SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC").all(userId);
+    res.json(transactions);
+});
+
 /**
  * POST /api/checkout
  * Body: { age_confirmed, items: [{product_id, qty}], email?, address? }
@@ -255,11 +323,27 @@ app.post("/api/checkout", (req, res) => {
     const productIds = items.map((i) => i.product_id);
     const placeholders = productIds.map(() => "?").join(",");
     const products = db
-        .prepare(`SELECT id, scoville FROM products WHERE id IN (${placeholders})`)
+        .prepare(`SELECT id, scoville, price_cents FROM products WHERE id IN (${placeholders})`)
         .all(...productIds);
 
     if (products.some((p) => p.scoville > 1_000_000) && !age_confirmed)
         return res.status(403).json({ error: "Age verification required for extreme hot sauces" });
+
+    const userId = req.headers.authorization;
+    if (userId) {
+        const total_cents = items.reduce((sum, item) => {
+            const p = products.find(prod => prod.id === item.product_id);
+            return sum + (p ? p.price_cents * item.qty : 0);
+        }, 0);
+        const items_count = items.reduce((sum, item) => sum + item.qty, 0);
+
+        try {
+            db.prepare("INSERT INTO transactions (user_id, total_cents, items_count) VALUES (?, ?, ?)")
+                .run(userId, total_cents, items_count);
+        } catch (e) {
+            console.error("Failed to record transaction", e);
+        }
+    }
 
     res.json({
         ok: true,
