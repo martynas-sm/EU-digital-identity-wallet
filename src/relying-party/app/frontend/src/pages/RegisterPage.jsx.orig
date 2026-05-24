@@ -28,15 +28,14 @@ export function RegisterPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             })
-
+            const data = await res.json()
             if (!res.ok) {
-                const data = await res.json().catch(() => ({}))
                 setError(data.error || 'Registration failed.')
                 return
             }
             toast.success("Account created successfully. Please login.")
             navigate('/login')
-        } catch (err) {
+        } catch {
             setError('Network error. Please try again.')
         } finally {
             setLoading(false)

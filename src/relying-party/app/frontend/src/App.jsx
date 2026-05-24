@@ -15,7 +15,12 @@ import * as auth from '@/services/auth'
 import { toast } from 'sonner'
 
 function ProfileIcon() {
-    const user = auth.getUser()
+    const [user, setUser] = useState(auth.getUser())
+
+    useEffect(() => {
+        return auth.useAuthListener(() => setUser(auth.getUser()))
+    }, [])
+
     return (
         <Link to={user ? "/profile" : "/login"} className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -27,12 +32,6 @@ function ProfileIcon() {
 export default function App() {
     const [checkoutOpen, setCheckoutOpen] = useState(false)
     const [ageConfirmed, setAgeConfirmed] = useState(false)
-    const [, setAuthTick] = useState(0)
-
-    // Force re-render on auth change so the Profile icon updates
-    useEffect(() => {
-        return auth.useAuthListener(() => setAuthTick(t => t + 1))
-    }, [])
 
     async function startCheckout() {
         if (cart.hasExtreme() && !ageConfirmed) {

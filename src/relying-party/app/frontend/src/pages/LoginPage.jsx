@@ -27,14 +27,16 @@ export function LoginPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             })
-            const data = await res.json()
+
             if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
                 setError(data.error || 'Login failed.')
                 return
             }
+            const data = await res.json()
             auth.login({ username: data.username }, data.token)
             navigate('/')
-        } catch {
+        } catch (err) {
             setError('Network error. Please try again.')
         } finally {
             setLoading(false)
