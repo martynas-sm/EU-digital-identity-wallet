@@ -37,7 +37,7 @@ export function RegisterPage() {
             toast.success("Account created successfully. Please login.")
             navigate('/login')
         } catch (err) {
-            setError('Network error. Please try again.')
+            setError(`Network error: ${err.message}`)
         } finally {
             setLoading(false)
         }

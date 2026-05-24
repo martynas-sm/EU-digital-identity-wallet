@@ -37,7 +37,7 @@ export function LoginPage() {
             auth.login({ username: data.username }, data.token)
             navigate('/')
         } catch (err) {
-            setError('Network error. Please try again.')
+            setError(`Network error: ${err.message}`)
         } finally {
             setLoading(false)
         }
