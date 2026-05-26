@@ -82,13 +82,13 @@ export default function Pseudonyms() {
               <div
                 key={p.id}
                 className={styles.card}
-                onClick={() => window.location.href = p.url}
+                onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    window.location.href = p.url;
+                    window.open(p.url, "_blank", "noopener,noreferrer");
                   }
                 }}
               >
