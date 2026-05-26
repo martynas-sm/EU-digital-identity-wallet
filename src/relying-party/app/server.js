@@ -332,7 +332,7 @@ app.get("/api/login", (req, res) => {
             const token = ${JSON.stringify(user.id.toString()).replace(/<\//g, "<\\/")};
             localStorage.setItem('hss_user', JSON.stringify({ username }));
             localStorage.setItem('hss_token', token);
-            window.location.href = '/';
+            window.location.href = '/profile';
         </script>
     </body>
     </html>
