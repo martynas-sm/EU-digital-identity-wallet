@@ -32,12 +32,14 @@ export type WalletData = {
   credentials: Credential[];
   transactions: Transaction[];
   signingData: SigningData | null;
+  pseudonyms?: { id: string; domain: string; url: string }[];
 };
 
 const defaultWalletData: WalletData = {
   credentials: [],
   transactions: [],
   signingData: null,
+  pseudonyms: [],
 };
 
 export const initData = async () => {
@@ -148,5 +150,27 @@ export async function deleteCredential(id: string): Promise<void> {
 export async function addTransaction(transaction: Transaction): Promise<void> {
   const data = await getData();
   data.transactions.push(transaction);
+  await updateData(data);
+}
+
+export async function addPseudonym(pseudonym: {
+  id: string;
+  domain: string;
+  url: string;
+}): Promise<void> {
+  const data = await getData();
+  if (!data.pseudonyms) {
+    data.pseudonyms = [];
+  }
+  data.pseudonyms.push(pseudonym);
+  await updateData(data);
+}
+
+export async function deletePseudonym(id: string): Promise<void> {
+  const data = await getData();
+  if (!data.pseudonyms) {
+    return;
+  }
+  data.pseudonyms = data.pseudonyms.filter((p) => p.id !== id);
   await updateData(data);
 }

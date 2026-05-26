@@ -35,6 +35,32 @@ export function ProfilePage() {
         navigate('/')
     }
 
+    const [loginLink, setLoginLink] = useState('')
+    const [linkLoading, setLinkLoading] = useState(false)
+
+    async function handleGenerateLink() {
+        setLinkLoading(true)
+        try {
+            const res = await fetch('/api/user/login-link', {
+                headers: { 'Authorization': auth.getToken() }
+            })
+            if (!res.ok) throw new Error('Failed to generate link')
+            const data = await res.json()
+            setLoginLink(data.link)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLinkLoading(false)
+        }
+    }
+
+    function handleCopyLink() {
+        if (loginLink) {
+            navigator.clipboard.writeText(loginLink)
+            alert('Link copied to clipboard')
+        }
+    }
+
     if (!user) return null
 
     return (
@@ -44,8 +70,29 @@ export function ProfilePage() {
                     <h1 className="text-2xl font-bold">Profile</h1>
                     <p className="text-sm text-muted-foreground mt-1">Logged in as <span className="font-semibold text-foreground">{user.username}</span></p>
                 </div>
-                <Button variant="outline" onClick={handleLogout}>Logout</Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleGenerateLink} disabled={linkLoading}>
+                        {linkLoading ? 'Generating...' : 'Get Wallet Login Link'}
+                    </Button>
+                    <Button variant="outline" onClick={handleLogout}>Logout</Button>
+                </div>
             </div>
+
+            {loginLink && (
+                <div className="mb-8 p-4 border dark:border-slate-800 rounded-xl bg-card dark:bg-slate-900">
+                    <h2 className="text-lg font-semibold mb-2">Wallet Login Link</h2>
+                    <p className="text-sm text-muted-foreground mb-4">Copy this link and add it to your Wallet to log in automatically.</p>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={loginLink}
+                            readOnly
+                            className="flex-1 px-3 py-2 border dark:border-slate-800 rounded-md bg-muted dark:bg-slate-950 text-sm focus:outline-none"
+                        />
+                        <Button onClick={handleCopyLink}>Copy</Button>
+                    </div>
+                </div>
+            )}
 
             <h2 className="text-xl font-semibold mb-4">Order History</h2>
 

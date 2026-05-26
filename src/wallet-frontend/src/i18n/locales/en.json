@@ -156,6 +156,7 @@
     "pid_providers": "PID Providers",
     "verify": "Verify",
     "transactions": "Transactions",
+    "pseudonyms": "Pseudonyms",
     "scan": "Scan",
     "document_signing": "Document Signing",
     "settings": "Settings",
