@@ -41,12 +41,12 @@ export default function Pseudonyms() {
       setNewUrl("");
       await fetchData();
     } catch {
-      alert("Invalid URL");
+      alert(t("pseudonyms.invalid_url"));
     }
   }
 
   async function handleDelete(id: string) {
-    if (window.confirm("Are you sure you want to delete this pseudonym?")) {
+    if (window.confirm(t("pseudonyms.delete_confirm"))) {
       await deletePseudonym(id);
       await fetchData();
     }
@@ -57,19 +57,19 @@ export default function Pseudonyms() {
 
   return (
     <div>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "16px" }}>{t("sidenav.pseudonyms") || "Pseudonyms"}</h1>
+      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "16px" }}>{t("pseudonyms.title")}</h1>
 
       <form onSubmit={handleAdd} style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
         <input
           type="url"
           value={newUrl}
           onChange={(e) => setNewUrl(e.target.value)}
-          placeholder="Paste login link here..."
+          placeholder={t("pseudonyms.paste_placeholder")}
           style={{ flex: 1, padding: "8px 12px", borderRadius: "8px", border: "1px solid #ccc" }}
           required
         />
         <button type="submit" style={{ padding: "8px 16px", backgroundColor: "#0070f3", color: "white", borderRadius: "8px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
-          <Plus size={18} /> Add
+          <Plus size={18} /> {t("pseudonyms.add_button")}
         </button>
       </form>
 
@@ -89,7 +89,7 @@ export default function Pseudonyms() {
             <button
               onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
               style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", cursor: "pointer", color: "#dc2626" }}
-              aria-label="Delete"
+              aria-label={t("pseudonyms.delete_aria")}
             >
               <Trash2 size={20} />
             </button>

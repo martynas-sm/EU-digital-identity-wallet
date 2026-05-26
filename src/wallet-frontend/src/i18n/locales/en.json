@@ -162,6 +162,14 @@
     "settings": "Settings",
     "logout": "Logout"
   },
+  "pseudonyms": {
+    "title": "Pseudonyms",
+    "paste_placeholder": "Paste login link here...",
+    "add_button": "Add",
+    "delete_confirm": "Are you sure you want to delete this pseudonym?",
+    "invalid_url": "Invalid URL",
+    "delete_aria": "Delete"
+  },
   "claims": {
     "given_name": "Given Name",
     "family_name": "Family Name",
