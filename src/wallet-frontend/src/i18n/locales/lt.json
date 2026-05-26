@@ -158,10 +158,19 @@
     "pid_providers": "PID tiekėjai",
     "verify": "Tvirtinti",
     "transactions": "Operacijos",
+    "pseudonyms": "Pseudonimai",
     "scan": "Nuskaityti",
     "document_signing": "Pasirašymas",
     "settings": "Nustatymai",
     "logout": "Atsijungti"
+  },
+  "pseudonyms": {
+    "title": "Pseudonimai",
+    "paste_placeholder": "Įklijuokite prisijungimo nuorodą čia...",
+    "add_button": "Pridėti",
+    "delete_confirm": "Ar tikrai norite ištrinti šį pseudonimą?",
+    "invalid_url": "Neteisingas URL",
+    "delete_aria": "Ištrinti"
   },
   "claims": {
     "given_name": "Vardas",

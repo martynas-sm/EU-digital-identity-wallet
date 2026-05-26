@@ -7,6 +7,7 @@ import {
   ArrowLeftRight,
   Building2,
   Signature,
+  Key,
 } from "lucide-react";
 import styles from "./SideNavbar.module.css";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,7 @@ const navItems = [
     icon: ArrowLeftRight,
     labelKey: "sidenav.transactions",
   },
+  { to: "/pseudonyms", icon: Key, labelKey: "sidenav.pseudonyms" },
   { to: "/scan", icon: QrCode, labelKey: "sidenav.scan" },
   { to: "/sign", icon: Signature, labelKey: "sidenav.document_signing" },
 ];

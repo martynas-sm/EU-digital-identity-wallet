@@ -38,6 +38,7 @@ db.exec(`
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     username    TEXT    NOT NULL UNIQUE,
     password    TEXT    NOT NULL,
+    login_token TEXT    UNIQUE,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -52,6 +53,12 @@ db.exec(`
 
 try {
     db.exec("ALTER TABLE reviews ADD COLUMN rating INTEGER NOT NULL DEFAULT 5;");
+} catch (e) {
+    // Column exists
+}
+
+try {
+    db.exec("ALTER TABLE users ADD COLUMN login_token TEXT UNIQUE;");
 } catch (e) {
     // Column exists
 }
@@ -302,6 +309,53 @@ app.post("/api/login", (req, res) => {
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
     res.json({ token: user.id.toString(), username: user.username });
+});
+
+app.get("/api/login", (req, res) => {
+    const { token } = req.query;
+    if (!token) return res.status(400).send("Token is required");
+
+    const user = db.prepare("SELECT id, username FROM users WHERE login_token = ?").get(token);
+    if (!user) return res.status(401).send("Invalid or expired token");
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Authenticating...</title>
+    </head>
+    <body>
+        <p>Authenticating...</p>
+        <script>
+            // Avoid XSS by safely replacing script end tags
+            const username = ${JSON.stringify(user.username).replace(/<\//g, "<\\/")};
+            const token = ${JSON.stringify(user.id.toString()).replace(/<\//g, "<\\/")};
+            localStorage.setItem('hss_user', JSON.stringify({ username }));
+            localStorage.setItem('hss_token', token);
+            window.location.href = '/profile';
+        </script>
+    </body>
+    </html>
+    `;
+    res.send(html);
+});
+
+app.get("/api/user/login-link", (req, res) => {
+    const userId = req.headers.authorization;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = db.prepare("SELECT id, username, login_token FROM users WHERE id = ?").get(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    let token = user.login_token;
+    if (!token) {
+        token = crypto.randomBytes(32).toString('base64url');
+        db.prepare("UPDATE users SET login_token = ? WHERE id = ?").run(token, userId);
+    }
+
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    res.json({ link: `${protocol}://${host}/api/login?token=${token}` });
 });
 
 app.get("/api/transactions", (req, res) => {

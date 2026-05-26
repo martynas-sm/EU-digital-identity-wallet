@@ -14,6 +14,7 @@ import PidCallback from "./pages/PidCallback";
 import SignDocument from "./pages/SignDocument";
 import Scan from "./pages/Scan";
 import Protected from "./pages/Protected";
+import Pseudonyms from "./pages/Pseudonyms";
 
 function AppRoutes({
   setToken,
@@ -37,6 +38,14 @@ function AppRoutes({
         element={
           <Protected>
             <Navigate to="/credentials" replace />
+          </Protected>
+        }
+      />
+      <Route
+        path="/pseudonyms"
+        element={
+          <Protected>
+            <Pseudonyms />
           </Protected>
         }
       />
